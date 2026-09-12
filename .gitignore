@@ -224,5 +224,5 @@ docs/
 # Sandbox
 sandbox/
 
-# Tests
-tests/
+# Temp
+.upload_tmp/
