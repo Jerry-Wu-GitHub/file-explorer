@@ -9,8 +9,8 @@ from typing import Annotated
 from fastapi import APIRouter, Body, Depends
 from starlette import status
 
-from app.dependencies.services import get_write_service
-from app.errors.exceptions import (
+from ..dependencies.services import get_write_service
+from ..errors.exceptions import (
     HTTP_STATUS_BAD_REQUEST,
     HTTP_STATUS_CONFLICT,
     HTTP_STATUS_FORBIDDEN,
@@ -18,10 +18,10 @@ from app.errors.exceptions import (
     HTTP_STATUS_NOT_FOUND,
     HTTP_STATUS_UNPROCESSABLE_CONTENT,
 )
-from app.schemas.base import ApiResponse, ErrorResponse
-from app.schemas.filesystem import FileSystemEntryMetadata
-from app.schemas.write import CreateFolderRequest
-from app.services.write_service import WriteService
+from ..schemas.base import ApiResponse, ErrorResponse
+from ..schemas.filesystem import FileSystemEntryMetadata
+from ..schemas.write import CreateFolderRequest
+from ..services.write_service import WriteService
 
 
 router = APIRouter()

@@ -9,12 +9,12 @@ import shutil
 from pathlib import Path
 from typing import Optional
 
-from app.errors import BusinessError, ErrorCode
-from app.schemas.filesystem import FileSystemEntryMetadata
-from app.schemas.write import UpdateMetadataRequest
-from app.services.metadata_service import MetadataService
-from app.services.path_service import PathService
-from app.utils.permission_utils import parse_permissions_string
+from ..errors import BusinessError, ErrorCode
+from ..schemas.filesystem import FileSystemEntryMetadata
+from ..schemas.write import UpdateMetadataRequest
+from .metadata_service import MetadataService
+from .path_service import PathService
+from ..utils.permission_utils import parse_permissions_string
 
 
 class ModifyService:

@@ -14,12 +14,12 @@ import uuid
 from pathlib import Path
 from typing import BinaryIO, Iterator, Optional
 
-from app.constants import (
+from ..constants import (
     CHUNK_FILE_SUFFIX,
     CHUNK_TEMP_SUFFIX,
     MERGE_TEMP_SUFFIX,
 )
-from app.errors import BusinessError, ErrorCode
+from ..errors import BusinessError, ErrorCode
 
 
 CHUNK_IO_BUFFER_SIZE: int = 1024 * 1024

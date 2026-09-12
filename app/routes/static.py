@@ -13,8 +13,8 @@ from pathlib import Path
 from fastapi import APIRouter
 from starlette.staticfiles import StaticFiles
 
-from app.config import get_config
-from app.constants import STATIC_PREFIX
+from ..config import get_config
+from ..constants import STATIC_PREFIX
 
 
 router = APIRouter()

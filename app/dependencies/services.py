@@ -2,23 +2,23 @@
 
 from functools import lru_cache
 
-from app.config import get_config
-from app.repositories.upload_session_repository import (
+from ..config import get_config
+from ..repositories.upload_session_repository import (
     UploadSessionRepository,
 )
-from app.services.archive_service import ArchiveService
-from app.services.chunked_upload_service import ChunkedUploadService
-from app.services.content_service import ContentService
-from app.services.file_service import FileService
-from app.services.metadata_service import MetadataService
-from app.services.modify_service import ModifyService
-from app.services.path_service import get_path_service
-from app.services.search_service import SearchService
-from app.services.small_file_upload_service import SmallFileUploadService
-from app.services.upload_cleanup_service import UploadCleanupService
-from app.services.write_service import WriteService
-from app.storage.upload_chunk_storage import LocalUploadChunkStorage
-from app.storage.upload_lock_manager import UploadLockManager
+from ..services.archive_service import ArchiveService
+from ..services.chunked_upload_service import ChunkedUploadService
+from ..services.content_service import ContentService
+from ..services.file_service import FileService
+from ..services.metadata_service import MetadataService
+from ..services.modify_service import ModifyService
+from ..services.path_service import get_path_service
+from ..services.search_service import SearchService
+from ..services.small_file_upload_service import SmallFileUploadService
+from ..services.upload_cleanup_service import UploadCleanupService
+from ..services.write_service import WriteService
+from ..storage.upload_chunk_storage import LocalUploadChunkStorage
+from ..storage.upload_lock_manager import UploadLockManager
 
 
 LOCK_DIRECTORY_NAME: str = "locks"

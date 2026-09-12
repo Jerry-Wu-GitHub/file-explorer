@@ -15,7 +15,7 @@ from typing import Optional
 
 from pydantic import Field
 
-from app.constants import (
+from ..constants import (
     DEFAULT_FOLLOW_LINK,
     DEFAULT_PAGE,
     DEFAULT_PAGE_SIZE,
@@ -23,8 +23,8 @@ from app.constants import (
     MIN_PAGE,
     MIN_PAGE_SIZE,
 )
-from app.schemas.base import BaseSchema
-from app.schemas.filesystem import DirectoryFilterType
+from .base import BaseSchema
+from .filesystem import DirectoryFilterType
 
 
 class SearchQuery(BaseSchema):

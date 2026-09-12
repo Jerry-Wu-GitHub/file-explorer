@@ -9,8 +9,8 @@
 
 from pathlib import Path
 
-from app.constants import HIDDEN_FILE_PREFIX
-from app.errors import BusinessError, ErrorCode
+from ..constants import HIDDEN_FILE_PREFIX
+from ..errors import BusinessError, ErrorCode
 
 
 PERMISSION_READ_BIT: int = 0o4

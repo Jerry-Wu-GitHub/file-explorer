@@ -1,20 +1,20 @@
 """公共 Schema 包。"""
 
-from app.schemas.base import (
+from .base import (
     ApiResponse,
     BaseSchema,
     Data,
     ErrorResponse,
     PageMeta,
 )
-from app.schemas.filesystem import (
+from .filesystem import (
     DirectoryFilterType,
     FileSystemEntryMetadata,
     FileSystemEntryType,
     ListDirectoryQuery,
 )
-from app.schemas.search import SearchQuery
-from app.schemas.upload import (
+from .search import SearchQuery
+from .upload import (
     ChecksumAlgorithm,
     ChecksumSchema,
     CompleteUploadRequest,
@@ -23,7 +23,7 @@ from app.schemas.upload import (
     UploadSessionResponse,
     UploadStatus,
 )
-from app.schemas.write import (
+from .write import (
     CopyEntryRequest,
     CreateFileRequest,
     CreateFolderRequest,

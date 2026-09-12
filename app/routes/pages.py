@@ -9,13 +9,13 @@ from fastapi import APIRouter
 from fastapi.responses import HTMLResponse, PlainTextResponse
 from starlette import status
 
-from app.config import get_config
-from app.constants import (
+from ..config import get_config
+from ..constants import (
     INDEX_PAGE_FILENAME,
     INDEX_PAGE_ROUTE,
     METADATA_PAGE_FILENAME,
     METADATA_PAGE_ROUTE,
-    STATIC_HTML_DIRECTORY,
+    STATIC_HTML_DIRECTORY_NAME,
 )
 
 
@@ -33,7 +33,7 @@ def read_html_file(filename: str) -> str:
         HTML 文件内容；文件缺失时返回占位文本。
     """
     config = get_config()
-    file_path = config.static_directory / STATIC_HTML_DIRECTORY / filename
+    file_path = config.static_directory / STATIC_HTML_DIRECTORY_NAME / filename
     if not file_path.is_file():
         return f"<h1>页面不存在：{filename}</h1>"
     return file_path.read_text(encoding="utf-8")

@@ -2,10 +2,10 @@
 
 from fastapi import APIRouter
 
-from app.routes.files import router as files_router
-from app.routes.folders import router as folders_router
-from app.routes.search import router as search_router
-from app.routes.uploads import router as uploads_router
+from .files import router as files_router
+from .folders import router as folders_router
+from .search import router as search_router
+from .uploads import router as uploads_router
 
 
 router = APIRouter()

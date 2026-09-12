@@ -13,7 +13,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 from starlette.types import ASGIApp
 
-from app.constants import REQUEST_ID_HEADER
+from ..constants import REQUEST_ID_HEADER
 
 
 def generate_request_id() -> str:

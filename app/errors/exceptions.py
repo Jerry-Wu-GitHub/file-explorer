@@ -12,7 +12,7 @@
 
 from typing import Any, Optional
 
-from app.errors.error_codes import ErrorCode
+from ..errors.error_codes import ErrorCode
 
 
 HTTP_STATUS_BAD_REQUEST: int = 400

@@ -12,7 +12,7 @@
 - :mod:`app.constants.frontend`：前端资源与主题相关常量。
 """
 
-from app.constants.frontend import *  # noqa: F401,F403
-from app.constants.filesystem import *  # noqa: F401,F403
-from app.constants.server import *  # noqa: F401,F403
-from app.constants.upload import *  # noqa: F401,F403
+from .frontend import *  # noqa: F401,F403
+from .filesystem import *  # noqa: F401,F403
+from .server import *  # noqa: F401,F403
+from .upload import *  # noqa: F401,F403

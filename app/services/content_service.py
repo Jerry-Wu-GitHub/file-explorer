@@ -9,14 +9,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from app.errors import BusinessError, ErrorCode
-from app.services.path_service import PathService
-from app.utils.http_range import (
+from ..errors import BusinessError, ErrorCode
+from .path_service import PathService
+from ..utils.http_range import (
     RangeParseResult,
     RangeStatus,
     parse_range_header,
 )
-from app.utils.mime_utils import guess_mime_type
+from ..utils.mime_utils import guess_mime_type
 
 
 @dataclass(frozen=True)

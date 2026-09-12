@@ -8,7 +8,7 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from app.constants import (
+from ..constants import (
     STATUS_CANCELED,
     STATUS_COMPLETED,
     STATUS_COMPLETING,

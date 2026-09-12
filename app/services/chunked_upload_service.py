@@ -18,8 +18,8 @@ from pathlib import Path
 from tempfile import SpooledTemporaryFile
 from typing import BinaryIO, Optional
 
-from app.config import Config
-from app.constants import (
+from ..config import Config
+from ..constants import (
     STATUS_CANCELED,
     STATUS_COMPLETED,
     STATUS_COMPLETING,
@@ -29,27 +29,27 @@ from app.constants import (
     STATUS_UPLOADING,
     UPLOAD_STORAGE_SAFETY_MARGIN_BYTES,
 )
-from app.errors import BusinessError, ErrorCode
-from app.models.upload_session import (
+from ..errors import BusinessError, ErrorCode
+from ..models.upload_session import (
     UploadChunkRecord,
     UploadSession,
     UploadSessionSnapshot,
 )
-from app.repositories.upload_session_repository import (
+from ..repositories.upload_session_repository import (
     UploadSessionRepository,
 )
-from app.schemas.upload import (
+from ..schemas.upload import (
     ChecksumSchema,
     CompleteUploadRequest,
     InitializeUploadRequest,
     UploadChunkResponse,
     UploadSessionResponse,
 )
-from app.schemas.filesystem import FileSystemEntryMetadata
-from app.services.metadata_service import MetadataService
-from app.services.path_service import PathService
-from app.storage.upload_chunk_storage import LocalUploadChunkStorage
-from app.storage.upload_lock_manager import UploadLockManager
+from ..schemas.filesystem import FileSystemEntryMetadata
+from ..storage.upload_chunk_storage import LocalUploadChunkStorage
+from ..storage.upload_lock_manager import UploadLockManager
+from .metadata_service import MetadataService
+from .path_service import PathService
 
 
 EXPIRY_ELIGIBLE_STATUSES: tuple[str, ...] = (STATUS_CREATED, STATUS_UPLOADING)

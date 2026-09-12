@@ -13,7 +13,7 @@ import mimetypes
 from pathlib import Path
 from typing import Optional
 
-from app.constants import DEFAULT_MIME_TYPE
+from ..constants import DEFAULT_MIME_TYPE
 
 
 # 显式覆盖或补充的扩展名到 MIME 的映射表。

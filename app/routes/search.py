@@ -10,18 +10,18 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from starlette import status
 
-from app.dependencies.services import get_search_service
-from app.errors.exceptions import (
+from ..dependencies.services import get_search_service
+from ..errors.exceptions import (
     HTTP_STATUS_BAD_REQUEST,
     HTTP_STATUS_FORBIDDEN,
     HTTP_STATUS_INTERNAL_SERVER_ERROR,
     HTTP_STATUS_NOT_FOUND,
     HTTP_STATUS_UNPROCESSABLE_CONTENT,
 )
-from app.schemas.base import ApiResponse, ErrorResponse
-from app.schemas.filesystem import FileSystemEntryMetadata
-from app.schemas.search import SearchQuery
-from app.services.search_service import SearchService
+from ..schemas.base import ApiResponse, ErrorResponse
+from ..schemas.filesystem import FileSystemEntryMetadata
+from ..schemas.search import SearchQuery
+from ..services.search_service import SearchService
 
 
 router = APIRouter()

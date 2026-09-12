@@ -13,7 +13,7 @@ from typing import Literal, Optional
 
 from pydantic import Field
 
-from app.constants import (
+from ..constants import (
     DEFAULT_FILTER_TYPE,
     DEFAULT_FOLLOW_LINK,
     DEFAULT_PAGE,
@@ -24,7 +24,7 @@ from app.constants import (
     MIN_PAGE,
     MIN_PAGE_SIZE,
 )
-from app.schemas.base import BaseSchema
+from .base import BaseSchema
 
 
 FileSystemEntryType = Literal["file", "directory", "link", "other"]

@@ -11,14 +11,14 @@ import os
 import stat as stat_module
 from pathlib import Path
 
-from app.errors import BusinessError, ErrorCode
-from app.schemas.filesystem import (
+from ..errors import BusinessError, ErrorCode
+from ..schemas.filesystem import (
     FileSystemEntryMetadata,
     FileSystemEntryType,
 )
-from app.services.path_service import PathService
-from app.utils.mime_utils import guess_mime_type
-from app.utils.permission_utils import format_permissions, is_hidden
+from .path_service import PathService
+from ..utils.mime_utils import guess_mime_type
+from ..utils.permission_utils import format_permissions, is_hidden
 
 
 class MetadataService:

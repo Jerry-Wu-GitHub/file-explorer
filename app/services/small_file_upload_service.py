@@ -11,11 +11,11 @@ import uuid
 from pathlib import Path
 from typing import BinaryIO
 
-from app.config import Config
-from app.errors import BusinessError, ErrorCode
-from app.schemas.filesystem import FileSystemEntryMetadata
-from app.services.metadata_service import MetadataService
-from app.services.path_service import PathService
+from ..config import Config
+from ..errors import BusinessError, ErrorCode
+from ..schemas.filesystem import FileSystemEntryMetadata
+from .metadata_service import MetadataService
+from .path_service import PathService
 
 
 UPLOAD_READ_CHUNK_SIZE: int = 1024 * 1024

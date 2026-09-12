@@ -11,8 +11,8 @@ from typing import Annotated
 from fastapi import APIRouter, Body, Depends, Path, Request, Response
 from starlette import status
 
-from app.dependencies.services import get_chunked_upload_service
-from app.errors.exceptions import (
+from ..dependencies.services import get_chunked_upload_service
+from ..errors.exceptions import (
     HTTP_STATUS_BAD_REQUEST,
     HTTP_STATUS_CONFLICT,
     HTTP_STATUS_CONTENT_TOO_LARGE,
@@ -23,15 +23,15 @@ from app.errors.exceptions import (
     HTTP_STATUS_RANGE_NOT_SATISFIABLE,
     HTTP_STATUS_UNPROCESSABLE_CONTENT,
 )
-from app.schemas.base import ApiResponse, ErrorResponse
-from app.schemas.filesystem import FileSystemEntryMetadata
-from app.schemas.upload import (
+from ..schemas.base import ApiResponse, ErrorResponse
+from ..schemas.filesystem import FileSystemEntryMetadata
+from ..schemas.upload import (
     CompleteUploadRequest,
     InitializeUploadRequest,
     UploadChunkResponse,
     UploadSessionResponse,
 )
-from app.services.chunked_upload_service import ChunkedUploadService
+from ..services.chunked_upload_service import ChunkedUploadService
 
 
 router = APIRouter()

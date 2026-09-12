@@ -16,8 +16,8 @@ from pathlib import Path
 from tempfile import SpooledTemporaryFile
 from typing import Iterator
 
-from app.errors import BusinessError, ErrorCode
-from app.services.path_service import PathService
+from ..errors import BusinessError, ErrorCode
+from .path_service import PathService
 
 
 MAX_ARCHIVE_MEMORY_BUFFER: int = 10 * 1024 * 1024

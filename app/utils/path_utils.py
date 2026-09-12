@@ -13,7 +13,7 @@
 
 from typing import Optional
 
-from app.errors import BusinessError, ErrorCode
+from ..errors import BusinessError, ErrorCode
 
 
 ROOT_PATH: str = "/"

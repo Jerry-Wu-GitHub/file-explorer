@@ -10,11 +10,11 @@ from typing import Literal, Optional
 
 from pydantic import Field
 
-from app.constants import (
+from ..constants import (
     MAX_CHUNK_SIZE,
     MIN_CHUNK_SIZE,
 )
-from app.schemas.base import BaseSchema
+from .base import BaseSchema
 
 
 UploadStatus = Literal[

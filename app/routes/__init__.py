@@ -10,10 +10,10 @@
 
 from fastapi import APIRouter
 
-from app.constants import API_PREFIX, STATIC_PREFIX
-from app.routes.api import router as api_router
-from app.routes.pages import router as pages_router
-from app.routes.static import router as static_router
+from ..constants import API_PREFIX, STATIC_PREFIX
+from .api import router as api_router
+from .pages import router as pages_router
+from .static import router as static_router
 
 
 def get_router() -> APIRouter:

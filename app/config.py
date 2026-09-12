@@ -21,7 +21,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from app.constants import (
+from .constants import (
     API_PREFIX,
     CORS_ALLOWED_ORIGINS,
     DEFAULT_ACCENT_COLOR,
@@ -108,7 +108,7 @@ def read_environment_bool(name: str, default: bool) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
-def read_environment_path(name: str, default: str) -> Path:
+def read_environment_path(name: str, default: str | Path) -> Path:
     """从环境变量读取路径并解析为绝对路径。
 
     Args:

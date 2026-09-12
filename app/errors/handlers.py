@@ -20,8 +20,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
 
-from app.errors.error_codes import ErrorCode
-from app.errors.exceptions import (
+from ..errors.error_codes import ErrorCode
+from ..errors.exceptions import (
     BusinessError,
     HTTP_STATUS_BAD_REQUEST,
     HTTP_STATUS_CONFLICT,
@@ -34,7 +34,7 @@ from app.errors.exceptions import (
     HTTP_STATUS_RANGE_NOT_SATISFIABLE,
     HTTP_STATUS_UNPROCESSABLE_CONTENT,
 )
-from app.schemas.base import ErrorResponse
+from ..schemas.base import ErrorResponse
 
 logger = logging.getLogger(__name__)
 

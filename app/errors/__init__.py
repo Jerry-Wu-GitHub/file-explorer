@@ -10,9 +10,9 @@
   异常处理器的入口。
 """
 
-from app.errors.error_codes import ErrorCode
-from app.errors.exceptions import ERROR_CODE_HTTP_STATUS, BusinessError
-from app.errors.handlers import register_exception_handlers
+from .error_codes import ErrorCode
+from .exceptions import ERROR_CODE_HTTP_STATUS, BusinessError
+from .handlers import register_exception_handlers
 
 __all__ = [
     "ErrorCode",

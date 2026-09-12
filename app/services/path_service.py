@@ -10,9 +10,9 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Optional
 
-from app.config import Config, get_config
-from app.errors import BusinessError, ErrorCode
-from app.utils.path_utils import normalize_virtual_path
+from ..config import Config, get_config
+from ..errors import BusinessError, ErrorCode
+from ..utils.path_utils import normalize_virtual_path
 
 
 class PathService:

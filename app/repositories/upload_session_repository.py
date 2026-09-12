@@ -12,7 +12,7 @@ import sqlite3
 from pathlib import Path
 from typing import Optional
 
-from app.constants import (
+from ..constants import (
     STATUS_CANCELED,
     STATUS_COMPLETED,
     STATUS_COMPLETING,
@@ -21,8 +21,8 @@ from app.constants import (
     STATUS_FAILED,
     STATUS_UPLOADING,
 )
-from app.errors import BusinessError, ErrorCode
-from app.models.upload_session import (
+from ..errors import BusinessError, ErrorCode
+from ..models.upload_session import (
     UploadChunkRecord,
     UploadSession,
     UploadSessionSnapshot,

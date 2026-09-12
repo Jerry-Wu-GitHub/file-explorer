@@ -9,7 +9,7 @@ from typing import Optional
 
 from pydantic import Field
 
-from app.schemas.base import BaseSchema
+from .base import BaseSchema
 
 
 class CreateFileRequest(BaseSchema):

@@ -1,21 +1,21 @@
 """工具函数包。"""
 
-from app.utils.content_disposition import build_content_disposition
-from app.utils.file_stream import iter_file_range
-from app.utils.http_range import (
+from .content_disposition import build_content_disposition
+from .file_stream import iter_file_range
+from .http_range import (
     RangeParseResult,
     RangeRequest,
     RangeStatus,
     parse_range_header,
 )
-from app.utils.mime_utils import guess_mime_type, register_extra_mime_types
-from app.utils.path_utils import ROOT_PATH, normalize_virtual_path
-from app.utils.permission_utils import (
+from .mime_utils import guess_mime_type, register_extra_mime_types
+from .path_utils import ROOT_PATH, normalize_virtual_path
+from .permission_utils import (
     format_permissions,
     is_hidden,
     parse_permissions_string,
 )
-from app.utils.time_utils import datetime_to_timestamp
+from .time_utils import datetime_to_timestamp
 
 __all__ = [
     "ROOT_PATH",

@@ -13,7 +13,7 @@ from fastapi import APIRouter, Body, Depends, File, Form, Query, Request, Respon
 from fastapi.responses import StreamingResponse
 from starlette import status
 
-from app.dependencies.services import (
+from ..dependencies.services import (
     get_archive_service,
     get_content_service,
     get_file_service,
@@ -21,11 +21,11 @@ from app.dependencies.services import (
     get_small_file_upload_service,
     get_write_service,
 )
-from app.services.archive_service import (
+from ..services.archive_service import (
     ArchiveService,
     iter_archive_stream,
 )
-from app.errors.exceptions import (
+from ..errors.exceptions import (
     HTTP_STATUS_BAD_REQUEST,
     HTTP_STATUS_CONFLICT,
     HTTP_STATUS_CONTENT_TOO_LARGE,
@@ -35,24 +35,24 @@ from app.errors.exceptions import (
     HTTP_STATUS_RANGE_NOT_SATISFIABLE,
     HTTP_STATUS_UNPROCESSABLE_CONTENT,
 )
-from app.schemas.base import ApiResponse, ErrorResponse
-from app.schemas.filesystem import (
+from ..schemas.base import ApiResponse, ErrorResponse
+from ..schemas.filesystem import (
     FileSystemEntryMetadata,
     ListDirectoryQuery,
 )
-from app.schemas.write import (
+from ..schemas.write import (
     CopyEntryRequest,
     CreateFileRequest,
     UpdateMetadataRequest,
 )
-from app.services.content_service import ContentService
-from app.services.file_service import FileService
-from app.services.modify_service import ModifyService
-from app.services.write_service import WriteService
-from app.services.small_file_upload_service import SmallFileUploadService
-from app.utils.content_disposition import build_content_disposition
-from app.utils.file_stream import iter_file_range
-from app.utils.http_range import RangeStatus
+from ..services.content_service import ContentService
+from ..services.file_service import FileService
+from ..services.modify_service import ModifyService
+from ..services.write_service import WriteService
+from ..services.small_file_upload_service import SmallFileUploadService
+from ..utils.content_disposition import build_content_disposition
+from ..utils.file_stream import iter_file_range
+from ..utils.http_range import RangeStatus
 
 
 logger = logging.getLogger(__name__)

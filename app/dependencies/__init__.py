@@ -1,6 +1,6 @@
 """依赖注入包。"""
 
-from app.dependencies.services import (
+from .services import (
     get_archive_service,
     get_chunked_upload_service,
     get_content_service,

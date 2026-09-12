@@ -11,15 +11,15 @@ import logging
 import time
 from typing import Optional
 
-from app.constants import (
+from ..constants import (
     STATUS_CREATED,
     STATUS_EXPIRED,
     STATUS_UPLOADING,
 )
-from app.repositories.upload_session_repository import (
+from ..repositories.upload_session_repository import (
     UploadSessionRepository,
 )
-from app.storage.upload_chunk_storage import LocalUploadChunkStorage
+from ..storage.upload_chunk_storage import LocalUploadChunkStorage
 
 
 logger = logging.getLogger(__name__)
