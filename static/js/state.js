@@ -15,7 +15,27 @@ import {
   DEFAULT_PAGE_SIZE,
   DEFAULT_SHOW_HIDDEN,
   DEFAULT_SORT,
+  DEFAULT_VIEW_MODE,
+  STORAGE_KEY_VIEW_MODE,
+  SUPPORTED_VIEW_MODES,
 } from "./config.js";
+
+/**
+ * 从本地存储读取视图模式；值不合法时回退到默认值。
+ *
+ * @returns {string} 视图模式。
+ */
+function readStoredViewMode() {
+  try {
+    const stored = window.localStorage.getItem(STORAGE_KEY_VIEW_MODE);
+    if (stored && SUPPORTED_VIEW_MODES.includes(stored)) {
+      return stored;
+    }
+  } catch (error) {
+    console.error("读取视图模式失败：", error);
+  }
+  return DEFAULT_VIEW_MODE;
+}
 
 /**
  * 解析排序表达式 `<字段>,<方向>`。
@@ -49,6 +69,7 @@ let currentState = {
   pagination: { page: DEFAULT_PAGE, size: DEFAULT_PAGE_SIZE, total: 0 },
   sort: parseSortExpression(DEFAULT_SORT),
   showHidden: DEFAULT_SHOW_HIDDEN,
+  viewMode: readStoredViewMode(),
   loading: false,
   error: null,
 };
@@ -125,6 +146,7 @@ export function resetState() {
     pagination: { page: DEFAULT_PAGE, size: DEFAULT_PAGE_SIZE, total: 0 },
     sort: parseSortExpression(DEFAULT_SORT),
     showHidden: DEFAULT_SHOW_HIDDEN,
+    viewMode: readStoredViewMode(),
     loading: false,
     error: null,
   };
@@ -188,6 +210,23 @@ export function setSortExpression(expression) {
  */
 export function getSortExpression() {
   return buildSortExpression(currentState.sort);
+}
+
+/**
+ * 设置视图模式并持久化到本地存储。
+ *
+ * @param {string} viewMode 视图模式。
+ */
+export function setViewMode(viewMode) {
+  const target = SUPPORTED_VIEW_MODES.includes(viewMode)
+    ? viewMode
+    : DEFAULT_VIEW_MODE;
+  try {
+    window.localStorage.setItem(STORAGE_KEY_VIEW_MODE, target);
+  } catch (error) {
+    console.error("保存视图模式失败：", error);
+  }
+  updateState({ viewMode: target });
 }
 
 /**

@@ -45,6 +45,9 @@
       <div class="dropdown-anchor">
         <button id="sort-button" class="tool-button" aria-haspopup="menu" aria-expanded="false">排序 <span class="caret">&#9662;</span></button>
       </div>
+      <div class="dropdown-anchor">
+        <button id="view-button" class="tool-button" aria-haspopup="menu" aria-expanded="false">查看 <span class="caret">&#9662;</span></button>
+      </div>
     </div>
   </div>
 
@@ -96,9 +99,16 @@
   <div class="menu-separator"></div>
   <button data-sort-field="modifiedAt" data-sort-direction="asc">修改时间（升序）</button>
   <button data-sort-field="modifiedAt" data-sort-direction="desc">修改时间（降序）</button>
+</div>
+
+<!-- 下拉菜单：查看 -->
+<div id="view-menu" class="dropdown-menu" role="menu" hidden>
+  <button data-view-mode="grid">大图标</button>
+  <button data-view-mode="tile">平铺</button>
+  <button data-view-mode="list">详细信息</button>
   <div class="menu-separator"></div>
   <label class="menu-checkbox">
-    <input type="checkbox" id="show-hidden-checkbox"> 显示隐藏项
+    <input type="checkbox" id="show-hidden-checkbox"> 显示隐藏项目
   </label>
 </div>
 

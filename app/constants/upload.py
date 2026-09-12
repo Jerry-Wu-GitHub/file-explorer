@@ -10,8 +10,8 @@ UPLOAD_TEMP_ROOT: str = "./.upload_tmp"
 UPLOAD_DATABASE_PATH: str = "./.upload_tmp/uploads.sqlite3"
 """分片上传会话元数据 SQLite 数据库文件路径。"""
 
-DEFAULT_CHUNK_SIZE: int = 5 * 1024 * 1024
-"""默认分片大小（5 MiB）。"""
+DEFAULT_CHUNK_SIZE: int = 16 * 1024 * 1024
+"""默认分片大小（16 MiB）。"""
 
 MIN_CHUNK_SIZE: int = 256 * 1024
 """允许的最小分片大小（256 KiB）。"""

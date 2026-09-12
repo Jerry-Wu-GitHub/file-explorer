@@ -74,8 +74,8 @@ export const DEFAULT_SHOW_HIDDEN = false;
 /** 文本文件预览时读取的最大字节数，超过则退化为下载。 */
 export const TEXT_PREVIEW_MAX_BYTES = 2 * 1024 * 1024;
 
-/** 分片上传的默认分片大小（5 MiB），与后端保持兼容。 */
-export const DEFAULT_CHUNK_SIZE = 5 * 1024 * 1024;
+/** 默认分片大小（字节）：16 MiB。与后端 DEFAULT_CHUNK_SIZE 一致。 */
+export const DEFAULT_CHUNK_SIZE = 16 * 1024 * 1024;
 
 /** 分片上传并发上限。 */
 export const MAX_CONCURRENT_CHUNK_UPLOADS = 4;
@@ -92,14 +92,37 @@ export const PAGE_PATH_EXPLORER = "/";
 /** 属性页面路径。 */
 export const PAGE_PATH_METADATA = "/metadata";
 
-/** 切换到分片上传的大小阈值（字节）。 */
-export const CHUNKED_UPLOAD_THRESHOLD = 20 * 1024 * 1024;
+/** 切换到分片上传的大小阈值（字节）：32 MiB。 */
+export const CHUNKED_UPLOAD_THRESHOLD = 32 * 1024 * 1024;
 
 /** 分片大小的目标数量，用于自适应计算 chunkSize。 */
 export const TARGET_CHUNK_COUNT = 1000;
 
-/** 分片大小的最小/最大边界（字节），与后端约定一致。 */
+/** 分片大小的边界（字节），与后端约定一致。 */
 export const MIN_CHUNK_SIZE = 256 * 1024;
-
-/** 分片大小的最大边界（字节）。 */
 export const MAX_CHUNK_SIZE = 256 * 1024 * 1024;
+
+/** 单个上传会话允许的最大分片数量，与后端 MAX_CHUNKS 一致。 */
+export const MAX_CHUNKS = 10000;
+
+/** 视图模式：大图标（网格）。 */
+export const VIEW_MODE_GRID = "grid";
+
+/** 视图模式：平铺。 */
+export const VIEW_MODE_TILE = "tile";
+
+/** 视图模式：详细信息（列表）。 */
+export const VIEW_MODE_LIST = "list";
+
+/** 默认视图模式。 */
+export const DEFAULT_VIEW_MODE = VIEW_MODE_GRID;
+
+/** 支持的视图模式集合。 */
+export const SUPPORTED_VIEW_MODES = [
+  VIEW_MODE_GRID,
+  VIEW_MODE_TILE,
+  VIEW_MODE_LIST,
+];
+
+/** 本地存储键：视图模式。 */
+export const STORAGE_KEY_VIEW_MODE = "fe.viewMode";

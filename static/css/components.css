@@ -315,3 +315,24 @@
 .context-menu__submenu[hidden] {
   display: none;
 }
+
+/* 视图模式下拉项：左侧固定宽度的选中标记 */
+.dropdown-menu button[data-view-mode] {
+  position: relative;
+  padding-left: 28px;
+}
+
+.dropdown-menu button[data-view-mode]::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.dropdown-menu button[data-view-mode][data-active="true"]::before {
+  content: "✓";
+}

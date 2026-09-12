@@ -13,7 +13,7 @@
  * （由 `context-menu.js` 负责）。
  */
 
-import { formatSize } from "./format.js";
+import { formatSize, formatTimestamp } from "./format.js";
 import { isSelected } from "./state.js";
 
 /** 交互回调，由 `initializeFileList` 注入。 */
@@ -227,7 +227,11 @@ export function createEntryElement(entry, selected) {
   detail.className = "file-detail";
   detail.textContent = buildEntryDetail(entry);
 
-  element.append(icon, name, detail);
+  const modified = document.createElement("div");
+  modified.className = "file-modified";
+  modified.textContent = formatTimestamp(entry.modifiedAt);
+
+  element.append(icon, name, detail, modified);
   return element;
 }
 
@@ -270,9 +274,15 @@ function updateSelectionClasses(grid, selectedPaths) {
  * @param {Object} state 状态快照。
  */
 export function renderFileList(state) {
+  const container = document.getElementById("file-list-container");
   const grid = document.getElementById("file-grid");
-  if (!grid) {
+  if (!container || !grid) {
     return;
+  }
+
+  const viewMode = state.viewMode || "grid";
+  if (container.dataset.viewMode !== viewMode) {
+    container.dataset.viewMode = viewMode;
   }
 
   if (state.loading) {

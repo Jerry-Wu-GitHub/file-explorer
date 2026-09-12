@@ -8,8 +8,8 @@ from pathlib import Path
 from typing import Iterator
 
 
-DEFAULT_STREAM_CHUNK_SIZE: int = 1024 * 1024
-"""默认的流式读取块大小（1 MiB）。"""
+DEFAULT_STREAM_CHUNK_SIZE: int = 16 * 1024 * 1024
+"""默认的流式读取块大小（16 MiB）。"""
 
 
 def iter_file_range(

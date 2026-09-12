@@ -29,10 +29,9 @@ import {
 } from "./api/uploads.js";
 import {
   CHUNKED_UPLOAD_THRESHOLD,
-  MAX_CHUNK_SIZE,
+  DEFAULT_CHUNK_SIZE,
+  MAX_CHUNKS,
   MAX_CONCURRENT_CHUNK_UPLOADS,
-  MIN_CHUNK_SIZE,
-  TARGET_CHUNK_COUNT,
 } from "./config.js";
 import { getState } from "./state.js";
 import { showError, showInfo, showSuccess, showToast } from "./toast.js";
@@ -95,21 +94,18 @@ function joinVirtualPath(directory, name) {
 /**
  * 根据文件大小选择分片大小。
  *
- * 目标分片数量控制在 `TARGET_CHUNK_COUNT` 附近，同时不超过最小与
- * 最大分片大小。
+ * 默认使用 `DEFAULT_CHUNK_SIZE`（16 MiB）。仅当固定分片会导致
+ * 分片数超过后端允许的 `MAX_CHUNKS` 时，才按上限反推更大的分片
+ * 大小，避免初始化请求被后端拒绝。
  *
  * @param {number} fileSize 文件总字节数。
  * @returns {number} 分片大小。
  */
 function pickChunkSize(fileSize) {
-  let size = Math.ceil(fileSize / TARGET_CHUNK_COUNT);
-  if (size < MIN_CHUNK_SIZE) {
-    size = MIN_CHUNK_SIZE;
+  if (fileSize <= DEFAULT_CHUNK_SIZE * MAX_CHUNKS) {
+    return DEFAULT_CHUNK_SIZE;
   }
-  if (size > MAX_CHUNK_SIZE) {
-    size = MAX_CHUNK_SIZE;
-  }
-  return size;
+  return Math.ceil(fileSize / MAX_CHUNKS);
 }
 
 /**

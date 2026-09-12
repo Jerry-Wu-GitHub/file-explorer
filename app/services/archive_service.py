@@ -23,7 +23,7 @@ from app.services.path_service import PathService
 MAX_ARCHIVE_MEMORY_BUFFER: int = 10 * 1024 * 1024
 """归档构建时的内存缓冲上限（字节），超过后自动溢出到磁盘。"""
 
-ARCHIVE_STREAM_CHUNK_SIZE: int = 1024 * 1024
+ARCHIVE_STREAM_CHUNK_SIZE: int = 16 * 1024 * 1024
 """输出 ZIP 流时每次读取的块大小（字节）。"""
 
 

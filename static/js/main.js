@@ -12,7 +12,7 @@
  * `explorer.js`、`uploader.js` 等专业模块。
  */
 
-import { getState, subscribe, setSelection, toggleSelection, addToSelection, clearSelection, getSelectedEntries, hasClipboard } from "./state.js";
+import { getState, subscribe, setSelection, toggleSelection, addToSelection, clearSelection, getSelectedEntries, hasClipboard, setViewMode } from "./state.js";
 import { initializeRouter, navigateTo, subscribeToNavigation } from "./router.js";
 import { initializeTheme } from "./theme.js";
 import { showError, showInfo } from "./toast.js";
@@ -286,8 +286,8 @@ function initializeUserInterface() {
     onSort(field, direction) {
       setSortAndReload(field, direction);
     },
-    onShowHiddenChange() {
-      reloadCurrentContext();
+    onViewModeChange(viewMode) {
+      setViewMode(viewMode);
     },
   });
 

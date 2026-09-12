@@ -30,7 +30,7 @@ let callbacks = {
   onShare: () => {},
   onDelete: () => {},
   onSort: () => {},
-  onShowHiddenChange: () => {},
+  onViewModeChange: () => {},
 };
 
 /** 是否已初始化。 */
@@ -108,6 +108,23 @@ function handleSortMenuClick(event) {
   const direction = button.dataset.sortDirection === "desc" ? "desc" : "asc";
   setSort(field, direction);
   callbacks.onSort(field, direction);
+}
+
+/**
+ * 处理查看菜单点击。
+ *
+ * @param {MouseEvent} event 点击事件。
+ */
+function handleViewMenuClick(event) {
+  const button = event.target.closest("button[data-view-mode]");
+  if (!button) {
+    return;
+  }
+  const menu = document.getElementById("view-menu");
+  if (menu) {
+    hideDropdown(menu);
+  }
+  callbacks.onViewModeChange(button.dataset.viewMode);
 }
 
 /**
@@ -190,6 +207,7 @@ export function initializeToolbar(options = {}) {
 
   bindDropdownButton("new-button", "new-menu");
   bindDropdownButton("sort-button", "sort-menu");
+  bindDropdownButton("view-button", "view-menu");
 
   bindSimpleButton("cut-button", callbacks.onCut);
   bindSimpleButton("copy-button", callbacks.onCopy);
@@ -206,6 +224,9 @@ export function initializeToolbar(options = {}) {
   document
     .getElementById("sort-menu")
     ?.addEventListener("click", handleSortMenuClick);
+  document
+    .getElementById("view-menu")
+    ?.addEventListener("click", handleViewMenuClick);
 
   document
     .getElementById("upload-button")
@@ -254,6 +275,17 @@ export function renderToolbar(state) {
   const showHiddenCheckbox = document.getElementById("show-hidden-checkbox");
   if (showHiddenCheckbox) {
     showHiddenCheckbox.checked = state.showHidden;
+  }
+
+  const viewMenu = document.getElementById("view-menu");
+  if (viewMenu) {
+    for (const button of viewMenu.querySelectorAll("button[data-view-mode]")) {
+      if (button.dataset.viewMode === state.viewMode) {
+        button.dataset.active = "true";
+      } else {
+        delete button.dataset.active;
+      }
+    }
   }
 }
 
