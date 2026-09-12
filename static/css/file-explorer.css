@@ -1,0 +1,126 @@
+/* 文件列表、框选与拖拽覆盖。 */
+
+.file-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 4px;
+  align-content: start;
+}
+
+.file-list-container[data-view="list"] .file-grid {
+  display: block;
+}
+
+.file-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-large);
+  cursor: default;
+  user-select: none;
+  text-align: center;
+  transition: background 0.1s ease, border-color 0.1s ease;
+}
+
+.file-list-container[data-view="list"] .file-item {
+  flex-direction: row;
+  justify-content: flex-start;
+  text-align: left;
+  padding: 6px 10px;
+  gap: 10px;
+}
+
+.file-item:hover {
+  background: var(--hover-bg);
+}
+
+.file-item.selected {
+  background: var(--selection-bg);
+  border-color: var(--selection-border);
+}
+
+.file-item.hidden-item {
+  opacity: 0.55;
+}
+
+.file-item.dragging {
+  opacity: 0.5;
+}
+
+.file-item .file-icon {
+  font-size: 34px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.file-list-container[data-view="list"] .file-item .file-icon {
+  font-size: 20px;
+}
+
+.file-item.directory .file-icon {
+  color: var(--accent);
+}
+
+.file-item.link .file-icon {
+  color: var(--fg-muted);
+}
+
+.file-item .file-name {
+  font-size: 12px;
+  word-break: break-all;
+  line-height: 1.3;
+  max-width: 100%;
+}
+
+.file-item .file-detail {
+  font-size: 11px;
+  color: var(--fg-muted);
+}
+
+.file-list-container[data-view="list"] .file-item .file-detail {
+  margin-left: auto;
+}
+
+/* 框选覆盖层 */
+.selection-box {
+  position: absolute;
+  border: 1px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* 拖拽进入覆盖层 */
+.drop-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--fg) 55%, transparent);
+  animation: modal-fade-in 0.12s ease-out;
+  pointer-events: none;
+}
+
+.drop-overlay__content {
+  padding: 24px 40px;
+  background: var(--bg-panel);
+  border: 2px dashed var(--accent);
+  border-radius: var(--radius-large);
+  color: var(--accent);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* 空目录提示 */
+.empty-hint {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--fg-muted);
+  padding: 60px 0;
+  font-size: 13px;
+}

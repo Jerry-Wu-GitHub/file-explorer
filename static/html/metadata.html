@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="system">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>属性</title>
+  <link rel="stylesheet" href="/static/css/theme.css">
+  <link rel="stylesheet" href="/static/css/layout.css">
+  <link rel="stylesheet" href="/static/css/components.css">
+  <link rel="stylesheet" href="/static/css/metadata.css">
+</head>
+<body>
+
+<div class="metadata-view">
+  <header class="path-bar">
+    <span class="metadata-title">属性</span>
+    <span id="metadata-path-label" class="path-label"></span>
+  </header>
+
+  <div class="metadata-scroll">
+    <form id="metadata-form" class="metadata-form" autocomplete="off">
+      <div class="form-row">
+        <label for="metadata-name">名称</label>
+        <input type="text" id="metadata-name" class="form-input">
+      </div>
+      <div class="form-row">
+        <label for="metadata-path">路径</label>
+        <input type="text" id="metadata-path" class="form-input">
+      </div>
+      <div class="form-row">
+        <label>类型</label>
+        <span id="metadata-type" class="form-static"></span>
+      </div>
+      <div class="form-row">
+        <label>大小</label>
+        <span id="metadata-size" class="form-static"></span>
+      </div>
+      <div class="form-row">
+        <label>MIME 类型</label>
+        <span id="metadata-mime" class="form-static"></span>
+      </div>
+      <div class="form-row">
+        <label>创建时间</label>
+        <span id="metadata-created" class="form-static"></span>
+      </div>
+      <div class="form-row">
+        <label for="metadata-modified">修改时间</label>
+        <input type="text" id="metadata-modified" class="form-input" placeholder="Unix 时间戳（秒）">
+      </div>
+      <div class="form-row">
+        <label for="metadata-accessed">访问时间</label>
+        <input type="text" id="metadata-accessed" class="form-input" placeholder="Unix 时间戳（秒）">
+      </div>
+      <div class="form-row">
+        <label for="metadata-permissions">权限</label>
+        <input type="text" id="metadata-permissions" class="form-input" placeholder="如 rw-r--r--">
+      </div>
+      <div class="form-row">
+        <label for="metadata-hidden">隐藏项目</label>
+        <input type="checkbox" id="metadata-hidden">
+      </div>
+
+      <div id="metadata-error" class="form-error hidden"></div>
+
+      <div class="form-actions">
+        <button type="submit" class="tool-button primary">保存</button>
+        <button type="button" id="metadata-reset-button" class="tool-button">重置</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+<script type="module" src="/static/js/metadata-page.js"></script>
+
+</body>
+</html>

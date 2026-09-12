@@ -1,0 +1,171 @@
+/* 主题变量与基础元素重置。
+ *
+ * 定义亮 / 暗 / 跟随系统三种主题与全局强调色。其他交互色（悬停、
+ * 选中、焦点外环）由强调色与前景色按比例混合得到，修改 --accent
+ * 即可全局换色。 */
+
+:root {
+  /* 强调色：控制台绿。改这一行即换色 */
+  --accent: #00e676;
+
+  /* 亮色主题（默认） */
+  --bg: #f6f7f9;
+  --bg-panel: #ffffff;
+  --bg-elevated: #f0f2f5;
+  --fg: #1c1e21;
+  --fg-muted: #667085;
+  --border: #d7dbe0;
+
+  /* 派生色 */
+  --hover-bg: color-mix(in srgb, var(--fg) 6%, transparent);
+  --active-bg: color-mix(in srgb, var(--fg) 10%, transparent);
+  --selection-bg: color-mix(in srgb, var(--accent) 22%, transparent);
+  --selection-border: color-mix(in srgb, var(--accent) 70%, var(--fg));
+  --focus-ring: color-mix(in srgb, var(--accent) 30%, transparent);
+
+  /* 语义色 */
+  --danger: #ef4444;
+  --danger-bg: color-mix(in srgb, var(--danger) 14%, transparent);
+  --success: #16a34a;
+
+  /* 阴影与代码背景 */
+  --shadow: 0 4px 20px color-mix(in srgb, var(--fg) 16%, transparent);
+  --code-bg: color-mix(in srgb, var(--fg) 5%, transparent);
+
+  /* 尺寸 */
+  --radius: 6px;
+  --radius-large: 10px;
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0f1115;
+  --bg-panel: #171a21;
+  --bg-elevated: #1f232c;
+  --fg: #e6e9ee;
+  --fg-muted: #9aa3b2;
+  --border: #2a2f3a;
+
+  --hover-bg: color-mix(in srgb, var(--fg) 8%, transparent);
+  --active-bg: color-mix(in srgb, var(--fg) 12%, transparent);
+  --selection-bg: color-mix(in srgb, var(--accent) 18%, transparent);
+  --selection-border: color-mix(in srgb, var(--accent) 60%, var(--fg));
+  --focus-ring: color-mix(in srgb, var(--accent) 40%, transparent);
+
+  --danger: #f87171;
+  --danger-bg: color-mix(in srgb, var(--danger) 16%, transparent);
+  --success: #4ade80;
+
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.55);
+  --code-bg: color-mix(in srgb, var(--fg) 7%, transparent);
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] {
+    --bg: #0f1115;
+    --bg-panel: #171a21;
+    --bg-elevated: #1f232c;
+    --fg: #e6e9ee;
+    --fg-muted: #9aa3b2;
+    --border: #2a2f3a;
+
+    --hover-bg: color-mix(in srgb, var(--fg) 8%, transparent);
+    --active-bg: color-mix(in srgb, var(--fg) 12%, transparent);
+    --selection-bg: color-mix(in srgb, var(--accent) 18%, transparent);
+    --selection-border: color-mix(in srgb, var(--accent) 60%, var(--fg));
+    --focus-ring: color-mix(in srgb, var(--accent) 40%, transparent);
+
+    --danger: #f87171;
+    --danger-bg: color-mix(in srgb, var(--danger) 16%, transparent);
+    --success: #4ade80;
+
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.55);
+    --code-bg: color-mix(in srgb, var(--fg) 7%, transparent);
+
+    color-scheme: dark;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "JetBrains Mono", "Fira Code", Consolas, "Courier New",
+    monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 5px;
+  border: 2px solid var(--bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--fg-muted);
+}

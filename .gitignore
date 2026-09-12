@@ -223,3 +223,6 @@ docs/
 
 # Sandbox
 sandbox/
+
+# Tests
+tests/

@@ -1,0 +1,70 @@
+/* 属性页面表单。 */
+
+.metadata-form {
+  max-width: 600px;
+  margin: 24px auto;
+  padding: 20px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-large);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-row label {
+  color: var(--fg-muted);
+  font-size: 13px;
+}
+
+.form-input {
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  color: var(--fg);
+  outline: none;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.form-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+.form-input[readonly] {
+  background: var(--hover-bg);
+  color: var(--fg-muted);
+  cursor: not-allowed;
+}
+
+.form-static {
+  font-size: 13px;
+  color: var(--fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.form-error {
+  color: var(--danger);
+  font-size: 13px;
+  padding: 8px 10px;
+  background: var(--danger-bg);
+  border-left: 3px solid var(--danger);
+  border-radius: var(--radius);
+}

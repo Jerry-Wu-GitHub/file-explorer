@@ -1,10 +1,20 @@
-"""API 路由聚合：挂载 /api/v1 下的全部接口（无 /api/v1 前缀）。"""
+"""业务 API 路由聚合模块。"""
 
 from fastapi import APIRouter
 
-from app.routes import files, uploads
+from app.routes.files import router as files_router
+from app.routes.folders import router as folders_router
+from app.routes.search import router as search_router
+from app.routes.uploads import router as uploads_router
+
 
 router = APIRouter()
+"""业务 API 路由对象。"""
 
-router.include_router(files.router)
-router.include_router(uploads.router)
+router.include_router(files_router, prefix="/files")
+router.include_router(uploads_router, prefix="/files")
+router.include_router(folders_router, prefix="/folders")
+router.include_router(search_router, prefix="/files")
+
+
+__all__ = ["router"]

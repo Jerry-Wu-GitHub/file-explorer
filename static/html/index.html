@@ -3,124 +3,118 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
   <title>文件资源管理器</title>
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/static/css/theme.css">
+  <link rel="stylesheet" href="/static/css/layout.css">
+  <link rel="stylesheet" href="/static/css/components.css">
+  <link rel="stylesheet" href="/static/css/file-explorer.css">
 </head>
 <body>
 
-  <!-- 文件浏览视图 -->
-  <div id="explorer-view" class="view">
-    <header class="path-bar">
-      <button id="back-button" class="icon-button" title="回退">&#8592;</button>
-      <button id="forward-button" class="icon-button" title="前进">&#8594;</button>
-      <button id="up-button" class="icon-button" title="上一级目录">&#8593;</button>
-      <button id="refresh-button" class="icon-button" title="刷新">&#8635;</button>
-      <input id="path-input" class="path-input" type="text" spellcheck="false" placeholder="/" autocomplete="off">
-      <input id="search-input" class="search-input" type="text" placeholder="在当前目录搜索" spellcheck="false" autocomplete="off">
-    </header>
+<div id="explorer-view" class="view">
+  <!-- 路径栏 -->
+  <header class="path-bar">
+    <button id="back-button" class="icon-button" title="回退" aria-label="回退">&#8592;</button>
+    <button id="forward-button" class="icon-button" title="前进" aria-label="前进">&#8594;</button>
+    <button id="up-button" class="icon-button" title="上一级目录" aria-label="上一级目录">&#8593;</button>
+    <button id="refresh-button" class="icon-button" title="刷新" aria-label="刷新">&#8635;</button>
+    <input id="path-input" class="path-input" type="text" spellcheck="false" placeholder="/" autocomplete="off" aria-label="当前路径">
+    <input id="search-input" class="search-input" type="search" placeholder="在当前目录搜索" spellcheck="false" autocomplete="off" aria-label="搜索">
+  </header>
 
-    <div class="toolbar">
-      <div class="toolbar-group">
-        <button id="new-button" class="tool-button">新建 &#9662;</button>
-        <button id="cut-button" class="tool-button" disabled>剪切</button>
-        <button id="copy-button" class="tool-button" disabled>复制</button>
-        <button id="paste-button" class="tool-button" disabled>粘贴</button>
-        <button id="rename-button" class="tool-button" disabled>重命名</button>
-        <button id="share-button" class="tool-button" disabled>分享</button>
-        <button id="delete-button" class="tool-button danger" disabled>删除</button>
+  <!-- 工具栏 -->
+  <div class="toolbar">
+    <div class="toolbar-group">
+      <div class="dropdown-anchor">
+        <button id="new-button" class="tool-button" aria-haspopup="menu" aria-expanded="false">新建 <span class="caret">&#9662;</span></button>
       </div>
-      <div class="toolbar-group">
-        <button id="sort-button" class="tool-button">排序 &#9662;</button>
-        <label class="tool-label"><input type="checkbox" id="show-hidden-checkbox"> 显示隐藏项</label>
+      <button id="cut-button" class="tool-button" disabled>剪切</button>
+      <button id="copy-button" class="tool-button" disabled>复制</button>
+      <button id="download-button" class="tool-button" disabled>下载</button>
+      <button id="download-zip-button" class="tool-button" disabled>下载压缩包</button>
+      <button id="paste-button" class="tool-button" disabled>粘贴</button>
+    </div>
+    <div class="toolbar-group">
+      <button id="upload-button" class="tool-button">上传</button>
+      <button id="rename-button" class="tool-button" disabled>重命名</button>
+      <button id="share-button" class="tool-button" disabled>分享</button>
+      <button id="delete-button" class="tool-button danger" disabled>删除</button>
+    </div>
+    <div class="toolbar-group toolbar-group--end">
+      <div class="dropdown-anchor">
+        <button id="sort-button" class="tool-button" aria-haspopup="menu" aria-expanded="false">排序 <span class="caret">&#9662;</span></button>
       </div>
     </div>
+  </div>
 
+  <!-- 文件列表 -->
+  <div id="file-list-container" class="file-list-container" tabindex="0">
     <div id="file-grid" class="file-grid"></div>
-
-    <footer class="status-bar">
-      <span id="status-info"></span>
-      <div class="pagination">
-        <button id="prev-page-button" class="icon-button" title="上一页">&#8592;</button>
-        <span id="page-info"></span>
-        <button id="next-page-button" class="icon-button" title="下一页">&#8594;</button>
-      </div>
-    </footer>
+    <div id="selection-box" class="selection-box" hidden></div>
   </div>
 
-  <!-- 文件预览模态框 -->
-  <div id="preview-modal" class="modal hidden">
-    <div class="modal-box">
-      <div class="modal-header">
-        <span id="preview-title"></span>
-        <button id="preview-close-button" class="icon-button">&times;</button>
-      </div>
-      <div id="preview-body" class="modal-body"></div>
+  <!-- 状态栏 -->
+  <footer class="status-bar">
+    <span id="status-info" class="status-info"></span>
+    <div class="pagination">
+      <button id="prev-page-button" class="icon-button icon-button--small" title="上一页">&#8592;</button>
+      <span id="page-info"></span>
+      <button id="next-page-button" class="icon-button icon-button--small" title="下一页">&#8594;</button>
     </div>
+  </footer>
+</div>
+
+<!-- 文件预览模态框 -->
+<div id="preview-modal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span id="preview-title"></span>
+      <button id="preview-close-button" class="icon-button" aria-label="关闭">&times;</button>
+    </div>
+    <div id="preview-body" class="modal-body"></div>
   </div>
+</div>
 
-  <!-- 右键上下文菜单 -->
-  <div id="context-menu" class="context-menu hidden"></div>
+<!-- 上下文菜单 -->
+<div id="context-menu" class="context-menu hidden" role="menu"></div>
 
-  <!-- 新建菜单与排序菜单（下拉） -->
-  <div id="new-menu" class="dropdown-menu hidden"></div>
-  <div id="sort-menu" class="dropdown-menu hidden"></div>
+<!-- 下拉菜单：新建 -->
+<div id="new-menu" class="dropdown-menu" role="menu" hidden>
+  <button data-menu-action="new-folder">文件夹</button>
+  <button data-menu-action="new-file">文件</button>
+  <button data-menu-action="new-symlink">符号链接</button>
+</div>
 
-  <!-- 属性视图 -->
-  <div id="metadata-view" class="view hidden">
-    <header class="path-bar">
-      <button id="metadata-back-button" class="icon-button" title="返回">&larr;</button>
-      <span class="metadata-title">属性</span>
-      <span id="metadata-path-label" class="path-label"></span>
-    </header>
-    <form id="metadata-form" class="metadata-form">
-      <div class="form-row">
-        <label>名称</label>
-        <input type="text" id="metadata-name" class="form-input">
-      </div>
-      <div class="form-row">
-        <label>路径</label>
-        <input type="text" id="metadata-path" class="form-input">
-      </div>
-      <div class="form-row">
-        <label>类型</label>
-        <span id="metadata-type" class="form-static"></span>
-      </div>
-      <div class="form-row">
-        <label>大小</label>
-        <span id="metadata-size" class="form-static"></span>
-      </div>
-      <div class="form-row">
-        <label>MIME 类型</label>
-        <span id="metadata-mime" class="form-static"></span>
-      </div>
-      <div class="form-row">
-        <label>创建时间</label>
-        <span id="metadata-created" class="form-static"></span>
-      </div>
-      <div class="form-row">
-        <label>修改时间</label>
-        <input type="text" id="metadata-modified" class="form-input" placeholder="Unix 时间戳（秒）">
-      </div>
-      <div class="form-row">
-        <label>访问时间</label>
-        <input type="text" id="metadata-accessed" class="form-input" placeholder="Unix 时间戳（秒）">
-      </div>
-      <div class="form-row">
-        <label>权限</label>
-        <input type="text" id="metadata-permissions" class="form-input" placeholder="如 rw-r--r--">
-      </div>
-      <div class="form-row">
-        <label>隐藏项目</label>
-        <input type="checkbox" id="metadata-hidden">
-      </div>
-      <div class="form-actions">
-        <button type="submit" class="tool-button primary">保存修改</button>
-        <button type="button" id="metadata-cancel-button" class="tool-button">取消</button>
-      </div>
-      <div id="metadata-error" class="form-error hidden"></div>
-    </form>
-  </div>
+<!-- 下拉菜单：排序 -->
+<div id="sort-menu" class="dropdown-menu" role="menu" hidden>
+  <button data-sort-field="name" data-sort-direction="asc">名称（升序）</button>
+  <button data-sort-field="name" data-sort-direction="desc">名称（降序）</button>
+  <div class="menu-separator"></div>
+  <button data-sort-field="size" data-sort-direction="asc">大小（升序）</button>
+  <button data-sort-field="size" data-sort-direction="desc">大小（降序）</button>
+  <div class="menu-separator"></div>
+  <button data-sort-field="modifiedAt" data-sort-direction="asc">修改时间（升序）</button>
+  <button data-sort-field="modifiedAt" data-sort-direction="desc">修改时间（降序）</button>
+  <div class="menu-separator"></div>
+  <label class="menu-checkbox">
+    <input type="checkbox" id="show-hidden-checkbox"> 显示隐藏项
+  </label>
+</div>
 
-  <script type="module" src="/js/main.js"></script>
+<!-- 隐藏的文件/文件夹选择器 -->
+<input type="file" id="file-input" multiple hidden>
+<input type="file" id="folder-input" webkitdirectory hidden>
+
+<!-- 拖拽覆盖层 -->
+<div id="drop-overlay" class="drop-overlay hidden">
+  <div class="drop-overlay__content">松开鼠标以上传</div>
+</div>
+
+<!-- Toast 容器 -->
+<div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+<script type="module" src="/static/js/main.js"></script>
+
 </body>
 </html>

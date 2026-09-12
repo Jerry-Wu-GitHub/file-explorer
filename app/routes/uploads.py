@@ -1,130 +1,190 @@
-"""/api/v1 下的分片上传接口（无 /api/v1 前缀）。"""
+"""分片上传的 HTTP 路由。
 
-from typing import Optional
+本模块提供分片上传的五个接口：初始化、查询、上传分片、完成与
+取消。所有成功响应使用 :class:`ApiResponse`，所有失败响应由全局
+异常处理器统一转换为 :class:`ErrorResponse`。
+"""
 
-from fastapi import APIRouter, Body, Request, Response
-from fastapi.responses import JSONResponse
+from tempfile import SpooledTemporaryFile
+from typing import Annotated
+
+from fastapi import APIRouter, Body, Depends, Path, Request, Response
 from starlette import status
 
-from app.constants.uploads import UPLOAD_STATUS_COMPLETED
-from app.models.common import ApiResponse
-from app.models.fs_entry import FsEntry
-from app.models.upload_session import UploadSession
-from app.routes.schemas.request import CompleteUploadRequest, InitUploadRequest
-from app.routes.schemas.response import (
-    ChunkUploadResponse,
+from app.dependencies.services import get_chunked_upload_service
+from app.errors.exceptions import (
+    HTTP_STATUS_BAD_REQUEST,
+    HTTP_STATUS_CONFLICT,
+    HTTP_STATUS_CONTENT_TOO_LARGE,
+    HTTP_STATUS_FORBIDDEN,
+    HTTP_STATUS_GONE,
+    HTTP_STATUS_INTERNAL_SERVER_ERROR,
+    HTTP_STATUS_NOT_FOUND,
+    HTTP_STATUS_RANGE_NOT_SATISFIABLE,
+    HTTP_STATUS_UNPROCESSABLE_CONTENT,
+)
+from app.schemas.base import ApiResponse, ErrorResponse
+from app.schemas.filesystem import FileSystemEntryMetadata
+from app.schemas.upload import (
+    CompleteUploadRequest,
+    InitializeUploadRequest,
+    UploadChunkResponse,
     UploadSessionResponse,
-    build_upload_session_response,
 )
-from app.utils.uploads import manager
-
-router = APIRouter(tags=["uploads"])
+from app.services.chunked_upload_service import ChunkedUploadService
 
 
-@router.post("/files/uploads", status_code=status.HTTP_201_CREATED)
-def initialize_upload(body: InitUploadRequest) -> ApiResponse[UploadSessionResponse]:
-    """初始化分片上传会话。"""
-    session: UploadSession = manager.create_upload_session(
-        virtual_path=body.path,
-        size=body.size,
-        chunk_size=body.chunk_size,
-        overwrite=body.overwrite,
-        checksum_algorithm=_checksum_algorithm(body),
-        checksum_value=_checksum_value(body),
-    )
-    return ApiResponse[UploadSessionResponse](data=build_upload_session_response(session))
+router = APIRouter()
+"""分片上传路由对象。"""
 
 
-@router.get("/files/uploads/{upload_id}", status_code=status.HTTP_200_OK)
-def fetch_upload_status(upload_id: str) -> ApiResponse[UploadSessionResponse]:
-    """查询上传状态，用于断点续传。"""
-    session: UploadSession = manager.query_upload_session(upload_id)
-    final_entry: Optional[FsEntry] = None
-    if session.status == UPLOAD_STATUS_COMPLETED:
-        final_entry = manager.build_final_entry(session.path)
-    return ApiResponse[UploadSessionResponse](
-        data=build_upload_session_response(session, final_entry)
-    )
+ERROR_RESPONSES: dict[int | str, dict] = {
+    HTTP_STATUS_BAD_REQUEST: {"model": ErrorResponse},
+    HTTP_STATUS_FORBIDDEN: {"model": ErrorResponse},
+    HTTP_STATUS_NOT_FOUND: {"model": ErrorResponse},
+    HTTP_STATUS_CONFLICT: {"model": ErrorResponse},
+    HTTP_STATUS_GONE: {"model": ErrorResponse},
+    HTTP_STATUS_CONTENT_TOO_LARGE: {"model": ErrorResponse},
+    HTTP_STATUS_RANGE_NOT_SATISFIABLE: {"model": ErrorResponse},
+    HTTP_STATUS_UNPROCESSABLE_CONTENT: {"model": ErrorResponse},
+    HTTP_STATUS_INTERNAL_SERVER_ERROR: {"model": ErrorResponse},
+}
+"""分片上传接口共享的 OpenAPI 错误响应声明。"""
 
 
-@router.put(
-    "/files/uploads/{upload_id}/chunks/{chunk_number}",
-    status_code=status.HTTP_200_OK,
-)
-def upload_chunk(
-    upload_id: str,
-    chunk_number: int,
-    request: Request,
-    content: bytes = Body(..., media_type="application/octet-stream"),
-) -> ApiResponse[ChunkUploadResponse]:
-    """上传单个分片（application/octet-stream）。"""
-    content_md5: Optional[str] = request.headers.get("content-md5")
-    chunk_sha256: Optional[str] = request.headers.get("x-chunk-sha256")
+CHUNK_HEADER_CONTENT_MD5: str = "Content-MD5"
+"""分片上传可选携带的 MD5 校验头。"""
 
-    session: UploadSession = manager.upload_chunk(
-        upload_id=upload_id,
-        chunk_number=chunk_number,
-        content=content,
-        content_md5=content_md5,
-        chunk_sha256=chunk_sha256,
-    )
-    return ApiResponse[ChunkUploadResponse](
-        data=ChunkUploadResponse(
-            upload_id=session.upload_id,
-            chunk_number=chunk_number,
-            received_size=len(content),
-            uploaded_chunks=len(session.uploaded_chunks),
-            total_chunks=session.total_chunks,
-            uploaded_bytes=session.uploaded_bytes,
-            status=session.status,
-        )
-    )
+CHUNK_HEADER_SHA256: str = "X-Chunk-SHA256"
+"""分片上传可选携带的 SHA-256 校验头。"""
+
+CHUNK_BODY_BUFFER_SIZE: int = 8 * 1024 * 1024
+"""分片请求体的内存缓冲上限（字节），超过后溢出到磁盘。"""
 
 
 @router.post(
-    "/files/uploads/{upload_id}/complete",
+    "/uploads",
     status_code=status.HTTP_201_CREATED,
+    response_model=ApiResponse[UploadSessionResponse],
+    responses=ERROR_RESPONSES,
+    summary="初始化分片上传",
+    description=(
+        "创建分片上传会话并返回会话 ID。初始化不会创建目标文件，"
+        "只创建会话元数据与分片临时目录。"
+    ),
+)
+def initialize_upload(
+    payload: Annotated[InitializeUploadRequest, Body()],
+    chunked_upload_service: Annotated[
+        ChunkedUploadService, Depends(get_chunked_upload_service)
+    ],
+) -> ApiResponse[UploadSessionResponse]:
+    """初始化分片上传会话。"""
+    response = chunked_upload_service.initialize_upload(payload)
+    return ApiResponse[UploadSessionResponse](data=response)
+
+
+@router.get(
+    "/uploads/{upload_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=ApiResponse[UploadSessionResponse],
+    responses=ERROR_RESPONSES,
+    summary="查询上传状态",
+    description="用于断点续传，返回已上传与缺失分片列表。",
+)
+def get_upload_status(
+    upload_id: Annotated[str, Path(description="上传会话 ID")],
+    chunked_upload_service: Annotated[
+        ChunkedUploadService, Depends(get_chunked_upload_service)
+    ],
+) -> ApiResponse[UploadSessionResponse]:
+    """查询上传会话状态。"""
+    response = chunked_upload_service.get_upload_status(upload_id)
+    return ApiResponse[UploadSessionResponse](data=response)
+
+
+@router.put(
+    "/uploads/{upload_id}/chunks/{chunk_number}",
+    status_code=status.HTTP_200_OK,
+    response_model=ApiResponse[UploadChunkResponse],
+    responses=ERROR_RESPONSES,
+    summary="上传单个分片",
+    description=(
+        "以 ``application/octet-stream`` 上传单个分片。可选携带 "
+        "``Content-MD5`` 或 ``X-Chunk-SHA256`` 请求头进行校验。"
+    ),
+)
+async def upload_chunk(
+    request: Request,
+    upload_id: Annotated[str, Path(description="上传会话 ID")],
+    chunk_number: Annotated[
+        int, Path(description="分片编号，从 0 开始", ge=0)
+    ],
+    chunked_upload_service: Annotated[
+        ChunkedUploadService, Depends(get_chunked_upload_service)
+    ],
+) -> ApiResponse[UploadChunkResponse]:
+    """上传单个分片。"""
+    content_md5 = request.headers.get(CHUNK_HEADER_CONTENT_MD5)
+    chunk_sha256 = request.headers.get(CHUNK_HEADER_SHA256)
+
+    with SpooledTemporaryFile(max_size=CHUNK_BODY_BUFFER_SIZE) as buffer:
+        async for block in request.stream():
+            buffer.write(block)
+        buffer.seek(0)
+        response = chunked_upload_service.upload_chunk(
+            upload_id,
+            chunk_number,
+            buffer,
+            content_md5=content_md5,
+            chunk_sha256=chunk_sha256,
+        )
+    return ApiResponse[UploadChunkResponse](data=response)
+
+
+@router.post(
+    "/uploads/{upload_id}/complete",
+    status_code=status.HTTP_201_CREATED,
+    response_model=ApiResponse[FileSystemEntryMetadata],
+    responses=ERROR_RESPONSES,
+    summary="完成分片上传",
+    description=(
+        "合并所有分片并生成目标文件。重复调用是幂等的，返回现有"
+        "文件元数据。"
+    ),
 )
 def complete_upload(
-    upload_id: str,
-    body: Optional[CompleteUploadRequest] = Body(default=None),
-) -> JSONResponse:
-    """完成上传并合并分片；已完成会话重试返回 200。"""
-    checksum_algorithm: Optional[str] = None
-    checksum_value: Optional[str] = None
-    if body is not None and body.checksum is not None:
-        checksum_algorithm = body.checksum.algorithm
-        checksum_value = body.checksum.value
-
-    session, entry, already_completed = manager.complete_upload(
-        upload_id=upload_id,
-        checksum_algorithm=checksum_algorithm,
-        checksum_value=checksum_value,
-    )
-    payload: dict = ApiResponse[FsEntry](data=entry).model_dump(by_alias=True)
-    if already_completed:
-        return JSONResponse(status_code=status.HTTP_200_OK, content=payload)
-    return JSONResponse(status_code=status.HTTP_201_CREATED, content=payload)
+    payload: Annotated[CompleteUploadRequest, Body()],
+    upload_id: Annotated[str, Path(description="上传会话 ID")],
+    chunked_upload_service: Annotated[
+        ChunkedUploadService, Depends(get_chunked_upload_service)
+    ],
+) -> ApiResponse[FileSystemEntryMetadata]:
+    """完成分片上传并生成目标文件。"""
+    metadata = chunked_upload_service.complete_upload(upload_id, payload)
+    return ApiResponse[FileSystemEntryMetadata](data=metadata)
 
 
 @router.delete(
-    "/files/uploads/{upload_id}", status_code=status.HTTP_204_NO_CONTENT
+    "/uploads/{upload_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
+    responses=ERROR_RESPONSES,
+    summary="取消分片上传",
+    description=(
+        "取消上传并清理临时数据。取消操作幂等：会话不存在或已过期"
+        "时同样返回 204。"
+    ),
 )
-def cancel_upload(upload_id: str) -> Response:
-    """取消上传并清理临时数据，操作幂等。"""
-    manager.cancel_upload(upload_id)
+def cancel_upload(
+    upload_id: Annotated[str, Path(description="上传会话 ID")],
+    chunked_upload_service: Annotated[
+        ChunkedUploadService, Depends(get_chunked_upload_service)
+    ],
+) -> Response:
+    """取消上传并清理临时数据。"""
+    chunked_upload_service.cancel_upload(upload_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-def _checksum_algorithm(body: InitUploadRequest) -> Optional[str]:
-    """提取请求中的校验算法。"""
-    if body.checksum is None:
-        return None
-    return body.checksum.algorithm
-
-
-def _checksum_value(body: InitUploadRequest) -> Optional[str]:
-    """提取请求中的校验值。"""
-    if body.checksum is None:
-        return None
-    return body.checksum.value
+__all__ = ["router"]

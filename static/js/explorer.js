@@ -1,144 +1,234 @@
 /**
- * 文件浏览器视图：初始化、工具栏、搜索、隐藏开关。
+ * 目录加载与搜索编排。
+ *
+ * 把「加载当前路径 → 更新状态 → 触发渲染」的流程集中在一处，
+ * 供 `main.js`、工具栏、右键菜单、键盘快捷键与路由统一调用。
+ *
+ * 加载过程只更新状态，渲染由 `state.js` 的订阅者完成。
  */
 
-import { Debouncer, parseQueryParams, readLastFolder } from "./utils.js";
-import { cacheElements } from "./dom.js";
-import { executeAction } from "./actions.js";
-import { initDragSelect } from "./dragselect.js";
-import { bindShortcuts } from "./shortcuts.js";
-import { closeAllMenus, initMenus, showNewMenu, showSortMenu } from "./menus.js";
-import { initNavigation } from "./navigation.js";
-import { initSelection } from "./selection.js";
-import { loadDirectory } from "./rendering.js";
-import { setReloadHandler, setToolbarHandler, state } from "./state.js";
+import { listDirectory, searchEntries } from "./api/files.js";
+import {
+  getSortExpression,
+  getState,
+  setCurrentPath,
+  setEntries,
+  setError,
+  setLoading,
+  setPagination,
+  setSelection,
+} from "./state.js";
 
-/** 搜索防抖器 */
-const searchDebouncer = new Debouncer(350);
+/** 当前激活的搜索关键词；为 `null` 时表示常规目录浏览。 */
+let activeSearchQuery = null;
 
-/** 视图元素 ID 列表 */
-const elementIds = [
-  "path-input", "search-input", "file-grid", "status-info",
-  "prev-page-button", "next-page-button", "page-info",
-  "new-button", "cut-button", "copy-button", "paste-button",
-  "rename-button", "share-button", "delete-button", "sort-button",
-  "show-hidden-checkbox", "preview-modal", "preview-title",
-  "preview-body", "preview-close-button",
-];
+/** 最近一次加载使用的页码。 */
+let currentPage = 1;
 
 /**
- * 初始化文件浏览器视图。
+ * 过滤隐藏项。
+ *
+ * 后端返回全部条目（含隐藏项），由前端按用户偏好过滤。
+ *
+ * @param {Object[]} entries 条目列表。
+ * @param {boolean} showHidden 是否显示隐藏项。
+ * @returns {Object[]} 过滤后的条目列表。
  */
-export function initExplorer() {
-  cacheElements(elementIds);
-  initMenus();
-  setReloadHandler(loadDirectory);
-  setToolbarHandler(updateToolbarState);
-  bindToolbar();
-  bindViewEvents();
-  initNavigation();
-  initSelection();
-  initDragSelect(document.getElementById("file-grid"));
-  bindShortcuts(document.getElementById("search-input"));
-  resolveInitialPath();
-  loadDirectory();
-}
-
-/**
- * 绑定工具栏按钮事件。
- */
-function bindToolbar() {
-  const toolActions = ["cut", "copy", "paste", "rename", "share", "delete"];
-  for (const action of toolActions) {
-    document.getElementById(`${action}-button`).addEventListener("click", () => executeAction(action));
+function filterHidden(entries, showHidden) {
+  if (showHidden) {
+    return entries;
   }
-  document.getElementById("new-button").addEventListener("click", onNewButtonClick);
-  document.getElementById("sort-button").addEventListener("click", onSortButtonClick);
+  return entries.filter((entry) => !entry.isHidden);
 }
 
 /**
- * 绑定视图级事件。
+ * 按当前状态构造分页信息。
+ *
+ * @param {Object|null} meta 后端返回的 meta。
+ * @param {number} fallbackPage 请求使用的页码。
+ * @param {number} fallbackSize 请求使用的每页数量。
+ * @param {number} fallbackTotal 后端未返回 total 时使用的条数。
+ * @returns {{page: number, size: number, total: number}} 分页信息。
  */
-function bindViewEvents() {
-  document.getElementById("search-input").addEventListener("input", onSearchInput);
-  document.getElementById("show-hidden-checkbox").addEventListener("change", onShowHiddenChange);
-  document.addEventListener("click", closeAllMenus);
-  document.getElementById("preview-close-button").addEventListener("click", closePreview);
+function buildPagination(meta, fallbackPage, fallbackSize, fallbackTotal) {
+  return {
+    page: meta?.page ?? fallbackPage,
+    size: meta?.size ?? fallbackSize,
+    total: meta?.total ?? fallbackTotal,
+  };
 }
 
 /**
- * 解析初始路径：URL 参数 > 最近访问 > 根目录。
+ * 从后端加载当前上下文（目录或搜索结果）。
+ *
+ * @param {number} page 目标页码，从 1 开始。
+ * @returns {Promise<void>} 无返回值。
  */
-function resolveInitialPath() {
-  const params = parseQueryParams();
-  const requested = params.get("path");
-  state.currentPath = requested ? requested : readLastFolder();
+async function fetchEntries(page) {
+  const state = getState();
+  const pageSize = state.pagination.size;
+  setLoading(true);
+  setError(null);
+
+  try {
+    const parameters = {
+      page,
+      size: pageSize,
+      followLink: true,
+    };
+
+    let result;
+    if (activeSearchQuery !== null) {
+      result = await searchEntries({
+        ...parameters,
+        q: activeSearchQuery,
+        path: state.currentPath,
+      });
+    } else {
+      result = await listDirectory(state.currentPath, {
+        ...parameters,
+        sort: getSortExpression(),
+        type: "all",
+      });
+    }
+
+    const rawEntries = Array.isArray(result.data) ? result.data : [];
+    const visibleEntries = filterHidden(rawEntries, state.showHidden);
+    setEntries(visibleEntries);
+    setPagination(
+      buildPagination(result.meta, page, pageSize, visibleEntries.length)
+    );
+    currentPage = page;
+  } catch (error) {
+    setEntries([]);
+    setError(error);
+  } finally {
+    setLoading(false);
+  }
 }
 
 /**
- * 搜索输入防抖触发。
- * @param {Event} event - 输入事件
+ * 加载指定路径。
+ *
+ * 清除当前搜索关键词与选中集合，然后加载目录内容。
+ *
+ * @param {string} path 目标沙箱虚拟路径。
+ * @param {Object} [options] 可选参数。
+ * @param {number} [options.page] 目标页码，默认第 1 页。
+ * @returns {Promise<void>} 无返回值。
  */
-function onSearchInput(event) {
-  const keyword = event.target.value.trim();
-  searchDebouncer.run(() => runSearch(keyword));
+export async function loadPath(path, options = {}) {
+  activeSearchQuery = null;
+  setCurrentPath(path);
+  setSelection([]);
+  await fetchEntries(options.page || 1);
 }
 
 /**
- * 执行搜索并渲染。
- * @param {string} keyword - 搜索关键词
+ * 在当前目录内运行搜索。
+ *
+ * @param {string} query 搜索关键词。
+ * @param {Object} [options] 可选参数。
+ * @param {number} [options.page] 目标页码，默认第 1 页。
+ * @returns {Promise<void>} 无返回值。
  */
-function runSearch(keyword) {
-  state.searchKeyword = keyword;
-  state.isSearching = keyword.length > 0;
-  state.page = 1;
-  loadDirectory();
+export async function runSearch(query, options = {}) {
+  activeSearchQuery = query;
+  setSelection([]);
+  await fetchEntries(options.page || 1);
 }
 
 /**
- * 显示隐藏项开关。
- * @param {Event} event - 变更事件
+ * 清空搜索并恢复当前目录的常规浏览。
+ *
+ * @returns {Promise<void>} 无返回值。
  */
-function onShowHiddenChange(event) {
-  state.showHidden = event.target.checked;
-  loadDirectory();
+export async function clearSearch() {
+  activeSearchQuery = null;
+  setSelection([]);
+  await fetchEntries(1);
 }
 
 /**
- * 更新工具栏按钮可用状态。
+ * 重新加载当前上下文。
+ *
+ * 若用户正在进行搜索，则保留搜索关键词；否则按目录刷新。
+ *
+ * @returns {Promise<void>} 无返回值。
  */
-function updateToolbarState() {
-  const hasSelection = state.selection.size > 0;
-  document.getElementById("cut-button").disabled = !hasSelection;
-  document.getElementById("copy-button").disabled = !hasSelection;
-  document.getElementById("rename-button").disabled = !hasSelection;
-  document.getElementById("share-button").disabled = !hasSelection;
-  document.getElementById("delete-button").disabled = !hasSelection;
-  document.getElementById("paste-button").disabled = state.clipboard === null;
+export async function reloadCurrentContext() {
+  await fetchEntries(currentPage);
 }
 
 /**
- * 新建按钮点击：显示下拉菜单。
- * @param {MouseEvent} event - 鼠标事件
+ * 跳转到指定页。
+ *
+ * @param {number} page 目标页码。
+ * @returns {Promise<void>} 无返回值。
  */
-function onNewButtonClick(event) {
-  event.stopPropagation();
-  showNewMenu(event.clientX, event.clientY);
+export async function goToPage(page) {
+  const target = Math.max(1, Math.floor(page));
+  await fetchEntries(target);
 }
 
 /**
- * 排序按钮点击：显示下拉菜单。
- * @param {MouseEvent} event - 鼠标事件
+ * 跳转到下一页。
+ *
+ * @returns {Promise<void>} 无返回值。
  */
-function onSortButtonClick(event) {
-  event.stopPropagation();
-  showSortMenu(event.clientX, event.clientY);
+export async function goToNextPage() {
+  const state = getState();
+  const totalPages = Math.max(
+    1,
+    Math.ceil(state.pagination.total / state.pagination.size)
+  );
+  if (state.pagination.page >= totalPages) {
+    return;
+  }
+  await goToPage(state.pagination.page + 1);
 }
 
 /**
- * 关闭预览模态框。
+ * 跳转到上一页。
+ *
+ * @returns {Promise<void>} 无返回值。
  */
-function closePreview() {
-  document.getElementById("preview-modal").classList.add("hidden");
-  document.getElementById("preview-body").innerHTML = "";
+export async function goToPreviousPage() {
+  const state = getState();
+  if (state.pagination.page <= 1) {
+    return;
+  }
+  await goToPage(state.pagination.page - 1);
+}
+
+/**
+ * 返回当前是否处于搜索模式。
+ *
+ * @returns {boolean} 是否处于搜索模式。
+ */
+export function isSearching() {
+  return activeSearchQuery !== null;
+}
+
+/**
+ * 返回当前搜索关键词。
+ *
+ * @returns {string|null} 搜索关键词或 `null`。
+ */
+export function getActiveSearchQuery() {
+  return activeSearchQuery;
+}
+
+/**
+ * 计算当前上下文的总页数。
+ *
+ * @returns {number} 总页数，至少为 1。
+ */
+export function getTotalPages() {
+  const state = getState();
+  const { total, size } = state.pagination;
+  if (size <= 0) {
+    return 1;
+  }
+  return Math.max(1, Math.ceil(total / size));
 }

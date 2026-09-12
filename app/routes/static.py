@@ -1,56 +1,43 @@
-"""静态文件与页面接口：主页、属性页、静态资源（无 static 前缀）。"""
+"""静态资源路由。
+
+本模块挂载前端静态资源目录到 :data:`app.constants.STATIC_PREFIX`
+前缀下，使 CSS、JavaScript、图片等资源可以通过 ``/static/...``
+访问。
+
+HTML 页面本身不通过本路由暴露；页面路由由 :mod:`main` 显式声明，
+以便按名称返回固定文件。
+"""
 
 from pathlib import Path
-from typing import Optional
 
 from fastapi import APIRouter
-from fastapi.responses import FileResponse
-from starlette import status
+from starlette.staticfiles import StaticFiles
 
 from app.config import get_config
-from app.utils.errors import InvalidPathError, NotFoundError
-
-router = APIRouter(tags=["static"])
-
-_INDEX_HTML_NAME: str = "index.html"
+from app.constants import STATIC_PREFIX
 
 
-@router.get("/", status_code=status.HTTP_200_OK, include_in_schema=False)
-def home_page() -> FileResponse:
-    """文件管理器主页。"""
-    return FileResponse(_index_html_path())
+router = APIRouter()
+"""静态资源路由对象。"""
 
 
-@router.get("/metadata", status_code=status.HTTP_200_OK, include_in_schema=False)
-def metadata_page() -> FileResponse:
-    """条目属性页（前端根据 URL 渲染不同视图）。"""
-    return FileResponse(_index_html_path())
+def mount_static_files(application) -> None:
+    """将静态资源目录挂载到 FastAPI 应用。
+
+    目录不存在时不挂载，并在日志中给出提示；避免启动失败。
+
+    Args:
+        application: FastAPI 应用实例。
+    """
+    config = get_config()
+    static_directory: Path = config.static_directory
+    if not static_directory.is_dir():
+        return
+    application.mount(
+        STATIC_PREFIX,
+        StaticFiles(directory=str(static_directory)),
+        name="static",
+    )
 
 
-@router.get("/{resource_path:path}", status_code=status.HTTP_200_OK, include_in_schema=False)
-def serve_static_resource(resource_path: str) -> FileResponse:
-    """提供 static 目录下的静态资源（css/js/html 等）。"""
-    static_root: Path = _static_root_path()
-    candidate: Path = (static_root / resource_path).resolve()
-    if candidate != static_root and not candidate.is_relative_to(static_root):
-        raise InvalidPathError("静态资源路径非法")
-
-    if not candidate.is_file():
-        raise NotFoundError(f"静态资源不存在: /{resource_path}")
-
-    return FileResponse(candidate)
-
-
-def _static_root_path() -> Path:
-    """返回静态资源根目录（已创建）。"""
-    static_root: Path = Path(get_config().static_dir).expanduser().resolve()
-    static_root.mkdir(parents=True, exist_ok=True)
-    return static_root
-
-
-def _index_html_path() -> Path:
-    """返回主页 HTML 文件路径，缺失时抛出 404。"""
-    index_path: Path = _static_root_path() / "html" / _INDEX_HTML_NAME
-    if not index_path.is_file():
-        raise NotFoundError("主页文件缺失")
-    return index_path
+__all__ = ["router", "mount_static_files"]

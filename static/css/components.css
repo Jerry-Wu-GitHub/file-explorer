@@ -1,0 +1,317 @@
+/* 通用组件：图标按钮 / 工具按钮 / 下拉与右键菜单 / 模态框 / Toast。 */
+
+/* 图标按钮 */
+.icon-button {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-panel);
+  color: var(--fg);
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: border-color 0.12s ease, background 0.12s ease,
+    color 0.12s ease;
+}
+
+.icon-button:hover:not(:disabled) {
+  background: var(--hover-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.icon-button:disabled {
+  opacity: 0.4;
+}
+
+.icon-button--small {
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+}
+
+/* 工具按钮 */
+.tool-button {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-panel);
+  color: var(--fg);
+  font-size: 13px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: border-color 0.12s ease, color 0.12s ease,
+    background 0.12s ease;
+}
+
+.tool-button:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.tool-button:disabled {
+  opacity: 0.4;
+}
+
+.tool-button.danger:hover:not(:disabled) {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.tool-button.primary {
+  background: color-mix(in srgb, var(--accent) 22%, var(--bg-panel));
+  border-color: var(--accent);
+}
+
+.tool-button.primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 35%, var(--bg-panel));
+}
+
+.caret {
+  display: inline-block;
+  font-size: 10px;
+  opacity: 0.7;
+  margin-left: 2px;
+}
+
+/* 下拉与右键菜单 */
+.dropdown-menu,
+.context-menu {
+  position: fixed;
+  z-index: 100;
+  min-width: 170px;
+  padding: 4px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow);
+  animation: menu-fade-in 0.1s ease-out;
+}
+
+@keyframes menu-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-menu button,
+.context-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 7px 10px;
+  border: none;
+  background: transparent;
+  color: var(--fg);
+  font-size: 13px;
+  border-radius: 5px;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.dropdown-menu button:hover:not(:disabled),
+.context-menu button:hover:not(:disabled) {
+  background: var(--selection-bg);
+  color: var(--accent);
+}
+
+.dropdown-menu button.danger:hover:not(:disabled),
+.context-menu button.danger:hover:not(:disabled) {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.dropdown-menu button:disabled,
+.context-menu button:disabled {
+  opacity: 0.4;
+}
+
+.menu-separator {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--border);
+}
+
+.menu-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  color: var(--fg);
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.menu-checkbox:hover {
+  background: var(--hover-bg);
+}
+
+/* 模态框 */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: color-mix(in srgb, var(--fg) 45%, transparent);
+  animation: modal-fade-in 0.15s ease-out;
+}
+
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-box {
+  width: min(880px, 90vw);
+  max-height: 84vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.modal-header span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modal-body {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+}
+
+.modal-body pre {
+  margin: 0;
+  padding: 12px;
+  background: var(--code-bg);
+  border-radius: var(--radius);
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.modal-body img {
+  max-width: 100%;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Toast */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  min-width: 220px;
+  max-width: 360px;
+  padding: 10px 14px;
+  background: var(--bg-panel);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  animation: toast-in 0.18s ease-out;
+  pointer-events: auto;
+}
+
+.toast--error {
+  border-left-color: var(--danger);
+}
+
+.toast--success {
+  border-left-color: var(--success);
+}
+
+.toast.hiding {
+  animation: toast-out 0.18s ease-in forwards;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+}
+
+/* 上下文菜单子菜单 */
+.context-menu__submenu-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.context-menu__submenu-trigger {
+  position: relative;
+}
+
+.context-menu__submenu-trigger .caret {
+  float: right;
+  transition: transform 0.12s ease;
+}
+
+.context-menu__submenu-trigger[aria-expanded="true"] .caret {
+  transform: rotate(90deg);
+}
+
+.context-menu__submenu {
+  display: flex;
+  flex-direction: column;
+  margin: 2px 0 2px 8px;
+  padding-left: 6px;
+  border-left: 1px solid var(--border);
+}
+
+.context-menu__submenu[hidden] {
+  display: none;
+}
