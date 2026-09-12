@@ -4,30 +4,31 @@
 等与文件资源管理器业务直接相关的常量。
 """
 
+# 沙箱根目录，所有文件 API 仅能访问该目录内的资源
 SANDBOX_ROOT: str = "./sandbox"
-"""沙箱根目录，所有文件 API 仅能访问该目录内的资源。"""
 
+# 目录列表允许的最小页码
 MIN_PAGE: int = 1
-"""目录列表允许的最小页码。"""
 
+# 目录列表默认页码
 DEFAULT_PAGE: int = 1
-"""目录列表默认页码。"""
 
+# 目录列表允许的最小每页数量
 MIN_PAGE_SIZE: int = 1
-"""目录列表允许的最小每页数量。"""
 
+# 目录列表默认每页数量
 DEFAULT_PAGE_SIZE: int = 50
-"""目录列表默认每页数量。"""
 
+# 目录列表允许的最大每页数量
 MAX_PAGE_SIZE: int = 200
-"""目录列表允许的最大每页数量。"""
 
+# 默认排序字段
 DEFAULT_SORT_FIELD: str = "name"
-"""默认排序字段。"""
 
+# 默认排序方向
 DEFAULT_SORT_ORDER: str = "asc"
-"""默认排序方向。"""
 
+# 支持排序的字段名集合
 SUPPORTED_SORT_FIELDS: tuple[str, ...] = (
     "name",
     "size",
@@ -36,46 +37,45 @@ SUPPORTED_SORT_FIELDS: tuple[str, ...] = (
     "accessedAt",
     "type",
 )
-"""支持排序的字段名集合。"""
 
+# 支持的排序方向集合
 SUPPORTED_SORT_ORDERS: tuple[str, ...] = ("asc", "desc")
-"""支持的排序方向集合。"""
 
+# 目录列表默认过滤类型
 DEFAULT_FILTER_TYPE: str = "all"
-"""目录列表默认过滤类型。"""
 
+# 支持的过滤类型集合
 SUPPORTED_FILTER_TYPES: tuple[str, ...] = ("all", "file", "directory")
-"""支持的过滤类型集合。"""
 
+# 默认是否跟随符号链接
 DEFAULT_FOLLOW_LINK: bool = True
-"""默认是否跟随符号链接。"""
 
+# 条目类型：普通文件
 TYPE_FILE: str = "file"
-"""条目类型：普通文件。"""
 
+# 条目类型：目录
 TYPE_DIRECTORY: str = "directory"
-"""条目类型：目录。"""
 
+# 条目类型：符号链接
 TYPE_LINK: str = "link"
-"""条目类型：符号链接。"""
 
+# 条目类型：其它非常规文件（例如设备文件、FIFO 等）
 TYPE_OTHER: str = "other"
-"""条目类型：其它非常规文件（例如设备文件、FIFO 等）。"""
 
+# 以该前缀开头的名称被视为隐藏项目
 HIDDEN_FILE_PREFIX: str = "."
-"""以该前缀开头的名称被视为隐藏项目。"""
 
+# 压缩包默认后缀
 ZIP_ARCHIVE_SUFFIX: str = ".zip"
-"""压缩包默认后缀。"""
 
+# 压缩包响应的 MIME 类型
 ZIP_CONTENT_TYPE: str = "application/zip"
-"""压缩包响应的 MIME 类型。"""
 
+# 压缩包流式写出时使用的分块大小（字节）
 ZIP_STREAM_CHUNK_SIZE: int = 1024 * 1024
-"""压缩包流式写出时使用的分块大小（字节）。"""
 
+# 无法识别时使用的默认 MIME 类型
 DEFAULT_MIME_TYPE: str = "application/octet-stream"
-"""无法识别时使用的默认 MIME 类型。"""
 
 __all__ = [
     "SANDBOX_ROOT",

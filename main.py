@@ -16,12 +16,13 @@ from fastapi import FastAPI
 import uvicorn
 
 from app import lifespan, get_router, register_exception_handlers
-
+from app.config import get_config
 
 app = FastAPI(lifespan=lifespan)
 register_exception_handlers(app)
-app.include_router(get_router())
+app.include_router(get_router(), prefix="/explorer")
 
 
 if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=7860)
+    config = get_config()
+    uvicorn.run(app, host=config.host, port=config.port)

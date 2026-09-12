@@ -21,8 +21,8 @@ from ..storage.upload_chunk_storage import LocalUploadChunkStorage
 from ..storage.upload_lock_manager import UploadLockManager
 
 
+# 分片上传锁文件所在子目录名
 LOCK_DIRECTORY_NAME: str = "locks"
-"""分片上传锁文件所在子目录名。"""
 
 
 @lru_cache(maxsize=1)
