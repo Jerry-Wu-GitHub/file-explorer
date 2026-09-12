@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="system">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文件资源管理器</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- 文件浏览视图 -->
+  <div id="explorer-view" class="view">
+    <header class="path-bar">
+      <button id="back-button" class="icon-button" title="回退">&#8592;</button>
+      <button id="forward-button" class="icon-button" title="前进">&#8594;</button>
+      <button id="up-button" class="icon-button" title="上一级目录">&#8593;</button>
+      <button id="refresh-button" class="icon-button" title="刷新">&#8635;</button>
+      <input id="path-input" class="path-input" type="text" spellcheck="false" placeholder="/" autocomplete="off">
+      <input id="search-input" class="search-input" type="text" placeholder="在当前目录搜索" spellcheck="false" autocomplete="off">
+    </header>
+
+    <div class="toolbar">
+      <div class="toolbar-group">
+        <button id="new-button" class="tool-button">新建 &#9662;</button>
+        <button id="cut-button" class="tool-button" disabled>剪切</button>
+        <button id="copy-button" class="tool-button" disabled>复制</button>
+        <button id="paste-button" class="tool-button" disabled>粘贴</button>
+        <button id="rename-button" class="tool-button" disabled>重命名</button>
+        <button id="share-button" class="tool-button" disabled>分享</button>
+        <button id="delete-button" class="tool-button danger" disabled>删除</button>
+      </div>
+      <div class="toolbar-group">
+        <button id="sort-button" class="tool-button">排序 &#9662;</button>
+        <label class="tool-label"><input type="checkbox" id="show-hidden-checkbox"> 显示隐藏项</label>
+      </div>
+    </div>
+
+    <div id="file-grid" class="file-grid"></div>
+
+    <footer class="status-bar">
+      <span id="status-info"></span>
+      <div class="pagination">
+        <button id="prev-page-button" class="icon-button" title="上一页">&#8592;</button>
+        <span id="page-info"></span>
+        <button id="next-page-button" class="icon-button" title="下一页">&#8594;</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- 文件预览模态框 -->
+  <div id="preview-modal" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span id="preview-title"></span>
+        <button id="preview-close-button" class="icon-button">&times;</button>
+      </div>
+      <div id="preview-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- 右键上下文菜单 -->
+  <div id="context-menu" class="context-menu hidden"></div>
+
+  <!-- 新建菜单与排序菜单（下拉） -->
+  <div id="new-menu" class="dropdown-menu hidden"></div>
+  <div id="sort-menu" class="dropdown-menu hidden"></div>
+
+  <!-- 属性视图 -->
+  <div id="metadata-view" class="view hidden">
+    <header class="path-bar">
+      <button id="metadata-back-button" class="icon-button" title="返回">&larr;</button>
+      <span class="metadata-title">属性</span>
+      <span id="metadata-path-label" class="path-label"></span>
+    </header>
+    <form id="metadata-form" class="metadata-form">
+      <div class="form-row">
+        <label>名称</label>
+        <input type="text" id="metadata-name" class="form-input">
+      </div>
+      <div class="form-row">
+        <label>路径</label>
+        <input type="text" id="metadata-path" class="form-input">
+      </div>
+      <div class="form-row">
+        <label>类型</label>
+        <span id="metadata-type" class="form-static"></span>
+      </div>
+      <div class="form-row">
+        <label>大小</label>
+        <span id="metadata-size" class="form-static"></span>
+      </div>
+      <div class="form-row">
+        <label>MIME 类型</label>
+        <span id="metadata-mime" class="form-static"></span>
+      </div>
+      <div class="form-row">
+        <label>创建时间</label>
+        <span id="metadata-created" class="form-static"></span>
+      </div>
+      <div class="form-row">
+        <label>修改时间</label>
+        <input type="text" id="metadata-modified" class="form-input" placeholder="Unix 时间戳（秒）">
+      </div>
+      <div class="form-row">
+        <label>访问时间</label>
+        <input type="text" id="metadata-accessed" class="form-input" placeholder="Unix 时间戳（秒）">
+      </div>
+      <div class="form-row">
+        <label>权限</label>
+        <input type="text" id="metadata-permissions" class="form-input" placeholder="如 rw-r--r--">
+      </div>
+      <div class="form-row">
+        <label>隐藏项目</label>
+        <input type="checkbox" id="metadata-hidden">
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="tool-button primary">保存修改</button>
+        <button type="button" id="metadata-cancel-button" class="tool-button">取消</button>
+      </div>
+      <div id="metadata-error" class="form-error hidden"></div>
+    </form>
+  </div>
+
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>
