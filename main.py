@@ -20,7 +20,7 @@ from app.config import get_config
 
 app = FastAPI(lifespan=lifespan)
 register_exception_handlers(app)
-app.include_router(get_router(), prefix="/explorer")
+app.include_router(get_router())
 
 
 if __name__ == '__main__':
