@@ -11,6 +11,7 @@
  */
 
 import { STORAGE_KEY_RECENT_FOLDER } from "./config.js";
+import { BASE_PATH } from "./base-path.js";
 
 /** 导航订阅者集合。 */
 const navigationListeners = new Set();
@@ -59,18 +60,20 @@ export function parsePathFromLocation() {
 /**
  * 根据路径构造浏览页面 URL。
  *
- * 根路径返回 `/`，其他路径返回 `/?path=<编码后的路径>`。
+ * 结果会带上部署路径前缀：根路径返回 `${BASE_PATH}/`，其他路径
+ * 返回 `${BASE_PATH}/?path=<编码后的路径>`。当部署在根路径时，
+ * `BASE_PATH` 为空串，结果退化为 `/` 与 `/?path=...`。
  *
  * @param {string} path 沙箱虚拟路径。
  * @returns {string} URL 字符串。
  */
 export function buildExplorerUrl(path) {
   if (!path || path === "/") {
-    return "/";
+    return `${BASE_PATH}/`;
   }
   const parameters = new URLSearchParams();
   parameters.set("path", path);
-  return `/?${parameters.toString()}`;
+  return `${BASE_PATH}/?${parameters.toString()}`;
 }
 
 /**
@@ -176,11 +179,10 @@ export function initializeRouter() {
   }
 
   const initialPath = getRecentFolder() || "/";
-  window.history.replaceState(
-    { path: initialPath },
-    "",
-    buildExplorerUrl(initialPath)
-  );
+  const targetUrl = buildExplorerUrl(initialPath);
+  if (window.location.pathname + window.location.search !== targetUrl) {
+    window.history.replaceState({ path: initialPath }, "", targetUrl);
+  }
   rememberRecentFolder(initialPath);
   notifyNavigation(initialPath);
 }

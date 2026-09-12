@@ -8,36 +8,31 @@ HTML 页面本身不通过本路由暴露；页面路由由 :mod:`main` 显式�
 以便按名称返回固定文件。
 """
 
-from pathlib import Path
+import os
 
 from fastapi import APIRouter
-from starlette.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from starlette import status
 
 from ..config import get_config
-from ..constants import STATIC_PREFIX
 
 
 router = APIRouter()
 """静态资源路由对象。"""
 
 
-def mount_static_files(application) -> None:
-    """将静态资源目录挂载到 FastAPI 应用。
-
-    目录不存在时不挂载，并在日志中给出提示；避免启动失败。
-
-    Args:
-        application: FastAPI 应用实例。
+# 挂载整个静态目录，提供 /static/* 访问
+@router.get("/{full_path:path}", status_code=status.HTTP_200_OK)
+async def serve_static(full_path: str):
+    """
+    返回前端文件。
     """
     config = get_config()
-    static_directory: Path = config.static_directory
-    if not static_directory.is_dir():
-        return
-    application.mount(
-        STATIC_PREFIX,
-        StaticFiles(directory=str(static_directory)),
-        name="static",
-    )
+    # 尝试返回具体文件
+    file_path = config.static_directory / full_path
+    if os.path.isfile(file_path):
+        return FileResponse(file_path)
+    return {"detail": "File not exist"}
 
 
-__all__ = ["router", "mount_static_files"]
+__all__ = ["router"]

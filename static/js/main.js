@@ -17,6 +17,7 @@ import { initializeRouter, navigateTo, subscribeToNavigation } from "./router.js
 import { initializeTheme } from "./theme.js";
 import { showError, showInfo } from "./toast.js";
 import { formatSize } from "./format.js";
+import { BASE_PATH } from "./base-path.js";
 
 import { initializePathBar, renderPathBar, clearSearchInput } from "./path-bar.js";
 import { initializeToolbar, renderToolbar } from "./toolbar.js";
@@ -103,12 +104,14 @@ function renderStatusBar(state) {
 /**
  * 在浏览器新标签页中打开属性页面。
  *
+ * URL 会带上部署路径前缀，使子路径部署时属性页也能正确访问。
+ *
  * @param {string} path 条目的沙箱虚拟路径。
  */
 function openMetadataWindow(path) {
   const parameters = new URLSearchParams();
   parameters.set("path", path);
-  window.open(`/metadata?${parameters.toString()}`, "_blank");
+  window.open(`${BASE_PATH}/metadata?${parameters.toString()}`, "_blank");
 }
 
 /**

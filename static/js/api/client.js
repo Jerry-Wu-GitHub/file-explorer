@@ -13,6 +13,7 @@
  */
 
 import { API_PREFIX, REQUEST_TIMEOUT_MILLISECONDS } from "../config.js";
+import { BASE_PATH } from "../base-path.js";
 
 /**
  * 业务错误。
@@ -39,12 +40,15 @@ export class ApiError extends Error {
 /**
  * 拼接完整的请求地址。
  *
+ * 先应用从 `<base>` 标签推导出的部署路径前缀，再拼接 API 前缀，
+ * 使页面在非根路径部署时请求依然指向正确位置。
+ *
  * @param {string} path 相对于 API 前缀的路径，以 `/` 开头。
  * @returns {string} 完整 URL。
  */
 export function buildApiUrl(path) {
   const normalized = path.startsWith("/") ? path : `/${path}`;
-  return `${API_PREFIX}${normalized}`;
+  return `${BASE_PATH}${API_PREFIX}${normalized}`;
 }
 
 /**

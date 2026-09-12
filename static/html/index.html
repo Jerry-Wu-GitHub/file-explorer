@@ -5,10 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
   <title>文件资源管理器</title>
-  <link rel="stylesheet" href="/static/css/theme.css">
-  <link rel="stylesheet" href="/static/css/layout.css">
-  <link rel="stylesheet" href="/static/css/components.css">
-  <link rel="stylesheet" href="/static/css/file-explorer.css">
+  <script>
+    (function () {
+      var path = window.location.pathname;
+      // 去掉 index.html / metadata.html 之类的尾段
+      path = path.replace(/\/[^/]*\.html?$/i, "/");
+      // 若不以 / 结尾，补上（覆盖 /explorer 这种无尾斜杠的情况）
+      if (!path.endsWith("/")) {
+        path += "/";
+      }
+      var baseTag = document.createElement("base");
+      baseTag.href = path;
+      document.head.appendChild(baseTag);
+    })();
+  </script>
+  <link rel="stylesheet" href="static/css/theme.css">
+  <link rel="stylesheet" href="static/css/layout.css">
+  <link rel="stylesheet" href="static/css/components.css">
+  <link rel="stylesheet" href="static/css/file-explorer.css">
 </head>
 <body>
 
@@ -124,7 +138,7 @@
 <!-- Toast 容器 -->
 <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
-<script type="module" src="/static/js/main.js"></script>
+<script type="module" src="static/js/main.js"></script>
 
 </body>
 </html>

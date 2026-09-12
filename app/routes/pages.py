@@ -6,8 +6,7 @@
 """
 
 from fastapi import APIRouter
-from fastapi.responses import HTMLResponse, PlainTextResponse
-from starlette import status
+from fastapi.responses import HTMLResponse
 
 from ..config import get_config
 from ..constants import (
