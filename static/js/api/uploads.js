@@ -11,6 +11,7 @@ import {
   getData,
   postJson,
   putBinary,
+  requestWithFallback,
 } from "./client.js";
 
 /** 分片上传接口的 API 路径。 */
@@ -95,5 +96,9 @@ export function completeUpload(uploadId, options = {}) {
  * @returns {Promise<null>} 无响应体。
  */
 export function cancelUpload(uploadId) {
-  return deleteRequest(`${UPLOADS_PATH}/${encodeURIComponent(uploadId)}`);
+  const encodedId = encodeURIComponent(uploadId);
+  return requestWithFallback(
+    () => deleteRequest(`${UPLOADS_PATH}/${encodedId}`),
+    () => postJson(`${UPLOADS_PATH}/${encodedId}/cancel`)
+  );
 }

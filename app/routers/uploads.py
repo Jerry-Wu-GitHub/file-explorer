@@ -165,6 +165,17 @@ def complete_upload(
     return ApiResponse[FileSystemEntryMetadata](data=metadata)
 
 
+@router.post(
+    "/uploads/{upload_id}/cancel",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
+    responses=ERROR_RESPONSES,
+    summary="取消分片上传",
+    description=(
+        "取消上传并清理临时数据。取消操作幂等：会话不存在或已过期"
+        "时同样返回 204。"
+    ),
+)
 @router.delete(
     "/uploads/{upload_id}",
     status_code=status.HTTP_204_NO_CONTENT,

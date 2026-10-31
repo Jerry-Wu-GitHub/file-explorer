@@ -285,6 +285,28 @@ export function deleteRequest(path, parameters = {}) {
 }
 
 /**
+ * 先执行主请求，失败时静默回退到备用请求。
+ *
+ * 用于兼容不支持的 HTTP 方法（如网关屏蔽 DELETE / PATCH）的部署环境。
+ * 备用请求成功后返回其结果；两者都失败时抛出主请求的错误。
+ *
+ * @param {() => Promise<*>} primary 主请求。
+ * @param {() => Promise<*>} fallback 备用请求。
+ * @returns {Promise<*>} 请求结果。
+ */
+export async function requestWithFallback(primary, fallback) {
+  try {
+    return await primary();
+  } catch (primaryError) {
+    try {
+      return await fallback();
+    } catch {
+      throw primaryError;
+    }
+  }
+}
+
+/**
  * 发起 multipart/form-data 的 POST 请求。
  *
  * @param {string} path 相对于 API 前缀的路径。

@@ -15,8 +15,12 @@
 from fastapi import FastAPI
 import uvicorn
 
-from app import lifespan, get_router, register_exception_handlers
-from app.config import get_config
+from app import (
+    lifespan,
+    get_config,
+    get_router,
+    register_exception_handlers,
+)
 
 app = FastAPI(lifespan=lifespan)
 register_exception_handlers(app)

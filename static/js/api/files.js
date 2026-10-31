@@ -16,6 +16,7 @@ import {
   patchJson,
   postFormData,
   postJson,
+  requestWithFallback,
 } from "./client.js";
 
 /** 文件接口的 API 路径。 */
@@ -124,11 +125,15 @@ export function createFolder(path) {
  * @returns {Promise<null>} 后端返回 204，无响应体。
  */
 export function deleteEntry(path, options = {}) {
-  return deleteRequest(FILES_PATH, {
+  const parameters = {
     path,
     recursive: options.recursive,
     followLink: options.followLink,
-  });
+  };
+  return requestWithFallback(
+    () => deleteRequest(FILES_PATH, parameters),
+    () => postJson(`${FILES_PATH}/delete`, {}, parameters)
+  );
 }
 
 /**
@@ -141,10 +146,14 @@ export function deleteEntry(path, options = {}) {
  * @returns {Promise<Object>} 更新后的元数据。
  */
 export function updateMetadata(path, updates, options = {}) {
-  return patchJson(FILES_PATH, updates, {
+  const parameters = {
     path,
     followLink: options.followLink,
-  });
+  };
+  return requestWithFallback(
+    () => patchJson(FILES_PATH, updates, parameters),
+    () => postJson(`${FILES_PATH}/metadata/modify`, updates, parameters)
+  );
 }
 
 /**

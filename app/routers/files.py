@@ -151,7 +151,13 @@ def create_file(
 
 # -------- 删除 --------
 
-
+@router.post(
+    "/delete",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
+    responses=COMMON_ERROR_RESPONSES,
+    summary="删除文件或目录",
+)
 @router.delete(
     "",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -176,7 +182,13 @@ def delete_entry(
 
 # -------- 修改元数据 --------
 
-
+@router.post(
+    "/metadata/modify",
+    status_code=status.HTTP_200_OK,
+    response_model=ApiResponse[FileSystemEntryMetadata],
+    responses=COMMON_ERROR_RESPONSES,
+    summary="修改元数据",
+)
 @router.patch(
     "",
     status_code=status.HTTP_200_OK,
