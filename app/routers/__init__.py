@@ -16,13 +16,13 @@ from .pages import router as pages_router
 from .static import router as static_router
 
 
-def get_router() -> APIRouter:
+def get_router(**kwargs) -> APIRouter:
     """构建并返回顶层路由对象。
 
     Returns:
         包含业务 API、静态资源与页面子路由的 :class:`APIRouter` 实例。
     """
-    root_router = APIRouter()
+    root_router = APIRouter(**kwargs)
     root_router.include_router(api_router, prefix=API_PREFIX)
     root_router.include_router(static_router, prefix=STATIC_PREFIX)
     root_router.include_router(pages_router)

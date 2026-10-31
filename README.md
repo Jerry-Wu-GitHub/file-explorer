@@ -9,8 +9,8 @@ datasets: # 关联数据集
 models: # 关联模型
 
 # 启动文件
-deployspec:
-  entry_file: main.py
+# deployspec:
+#   entry_file: main.py
 license: Apache License 2.0
 ---
 # File Explorer
@@ -56,7 +56,7 @@ from file_explorer import lifespan, get_router, register_exception_handlers
 
 app = FastAPI(lifespan=lifespan)
 register_exception_handlers(app)
-app.include_router(get_router(), prefix="子应用前缀")
+app.include_router(get_router(prefix="子页面前缀"))
 ```
 
 ## 示例
