@@ -4,8 +4,10 @@
 等与文件资源管理器业务直接相关的常量。
 """
 
+from pathlib import Path
+
 # 沙箱根目录，所有文件 API 仅能访问该目录内的资源
-SANDBOX_ROOT: str = "./sandbox"
+SANDBOX_ROOT: Path = Path("./sandbox")
 
 # 目录列表允许的最小页码
 MIN_PAGE: int = 1

@@ -4,11 +4,13 @@
 会话有效期、并发会话数、状态机取值、校验算法等常量。
 """
 
+from pathlib import Path
+
 # 分片上传临时根目录，必须位于沙箱之外，不对外暴露
-UPLOAD_TEMP_ROOT: str = "./.upload_tmp"
+UPLOAD_TEMP_ROOT: Path = Path("./.upload_tmp")
 
 # 分片上传会话元数据 SQLite 数据库文件路径
-UPLOAD_DATABASE_PATH: str = "./.upload_tmp/uploads.sqlite3"
+UPLOAD_DATABASE_PATH: Path = Path("./.upload_tmp/uploads.sqlite3")
 
 # 默认分片大小（16 MiB）
 DEFAULT_CHUNK_SIZE: int = 16 * 1024 * 1024

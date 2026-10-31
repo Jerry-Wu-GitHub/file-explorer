@@ -18,11 +18,11 @@ import os
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
+from typing import Callable, Optional, TypeVar
 
 from dotenv import load_dotenv
 
 from .constants import (
-    API_PREFIX,
     CORS_ALLOWED_ORIGINS,
     DEFAULT_ACCENT_COLOR,
     DEFAULT_CHUNK_SIZE,
@@ -54,113 +54,115 @@ from .constants import (
 load_dotenv()
 
 
-def read_environment_string(name: str, default: str) -> str:
-    """从环境变量读取字符串值。
+EnvValue = TypeVar("EnvValue")
+
+def getenv(
+    name: str,
+    default: EnvValue,
+    convert: Optional[Callable[[str], EnvValue]] = None,
+    *,
+    ignore_exception: bool = True
+) -> EnvValue:
+    """
+    读取并转换环境变量为指定类型。
 
     Args:
         name: 环境变量名。
-        default: 环境变量未设置或为空字符串时返回的默认值。
-
-    Returns:
-        环境变量对应的字符串值；若环境变量未设置或为空则返回默认值。
+        default: 当环境变量值为 None、空字符串，或者转换失败且 ignore_exception=True 时返回。
+        convert: 将非空字符串转换为目标类型的可调用对象。
+        ignore_exception: 如果为 True，则在 convert 转换失败时返回 default。
     """
-    value = os.getenv(name)
-    if value is None or value == "":
+    value: Optional[str] = os.getenv(name)
+
+    # 值为 None 或 空
+    if not value:
         return default
+
+    if convert:
+        # 提供了转换器，尝试转换
+        try:
+            return convert(value)
+        except Exception as exp:
+            # 转换失败
+            if ignore_exception:
+                return default
+            raise exp
+
     return value
 
 
-def read_environment_int(name: str, default: int) -> int:
-    """从环境变量读取整数值。
-
-    Args:
-        name: 环境变量名。
-        default: 环境变量未设置、为空或解析失败时返回的默认值。
-
-    Returns:
-        解析后的整数值；无法解析时返回默认值。
-    """
-    value = os.getenv(name)
-    if value is None or value == "":
-        return default
-    try:
-        return int(value)
-    except ValueError:
-        return default
-
-
-def read_environment_bool(name: str, default: bool) -> bool:
-    """从环境变量读取布尔值。
+def str2bool(s: str) -> bool:
+    """将字符串解析为布尔值。
 
     可识别的真值为 ``1``、``true``、``yes``、``on``（大小写不敏感），
-    其余非空字符串均视为 ``False``。
-
-    Args:
-        name: 环境变量名。
-        default: 环境变量未设置或为空时返回的默认值。
+    其余字符串均视为 ``False``。
 
     Returns:
         解析后的布尔值；无法识别时返回默认值。
     """
-    value = os.getenv(name)
-    if value is None or value == "":
-        return default
-    return value.strip().lower() in {"1", "true", "yes", "on"}
+    return s.strip().lower() in {"1", "true", "yes", "on"}
 
 
-def read_environment_path(name: str, default: str | Path) -> Path:
-    """从环境变量读取路径并解析为绝对路径。
-
-    Args:
-        name: 环境变量名。
-        default: 环境变量未设置或为空时使用的默认路径。
+def str2path(s: str) -> Path:
+    """将字符串解析为绝对路径。
 
     Returns:
         展开 ``~`` 并解析后的绝对路径对象。
     """
-    raw_path = read_environment_string(name, default)
-    return Path(raw_path).expanduser().resolve()
+    return Path(s).expanduser().resolve()
 
 
 # 模块加载时统一解析一次环境变量，作为 Config 各字段的默认值。
-_HOST = read_environment_string("HOST", HOST)
-_PORT = read_environment_int("PORT", PORT)
-_CORS_ALLOWED_ORIGINS = read_environment_string(
+_HOST = getenv("HOST", HOST)
+_PORT = getenv("PORT", PORT, int)
+_CORS_ALLOWED_ORIGINS = getenv(
     "CORS_ALLOWED_ORIGINS", CORS_ALLOWED_ORIGINS
 )
-_SERVE_STATIC_FILES = read_environment_bool(
-    "SERVE_STATIC_FILES", SERVE_STATIC_FILES
+_SERVE_STATIC_FILES = getenv(
+    "SERVE_STATIC_FILES",
+    SERVE_STATIC_FILES,
+    str2bool
 )
-_SANDBOX_ROOT = read_environment_path("SANDBOX_ROOT", SANDBOX_ROOT)
-_STATIC_DIRECTORY = read_environment_path("STATIC_DIRECTORY", STATIC_DIRECTORY)
-_DEFAULT_PAGE = read_environment_int("DEFAULT_PAGE", DEFAULT_PAGE)
-_DEFAULT_PAGE_SIZE = read_environment_int("DEFAULT_PAGE_SIZE", DEFAULT_PAGE_SIZE)
-_MAX_PAGE_SIZE = read_environment_int("MAX_PAGE_SIZE", MAX_PAGE_SIZE)
-_DEFAULT_FOLLOW_LINK = read_environment_bool(
-    "DEFAULT_FOLLOW_LINK", DEFAULT_FOLLOW_LINK
+_SANDBOX_ROOT = getenv("SANDBOX_ROOT", SANDBOX_ROOT, str2path)
+_STATIC_DIRECTORY = getenv("STATIC_DIRECTORY", STATIC_DIRECTORY, str2path)
+_DEFAULT_PAGE = getenv("DEFAULT_PAGE", DEFAULT_PAGE, int)
+_DEFAULT_PAGE_SIZE = getenv("DEFAULT_PAGE_SIZE", DEFAULT_PAGE_SIZE, int)
+_MAX_PAGE_SIZE = getenv("MAX_PAGE_SIZE", MAX_PAGE_SIZE, int)
+_DEFAULT_FOLLOW_LINK = getenv(
+    "DEFAULT_FOLLOW_LINK",
+    DEFAULT_FOLLOW_LINK,
+    str2bool
 )
-_UPLOAD_TEMP_ROOT = read_environment_path("UPLOAD_TEMP_ROOT", UPLOAD_TEMP_ROOT)
-_UPLOAD_DATABASE_PATH = read_environment_path(
-    "UPLOAD_DATABASE_PATH", UPLOAD_DATABASE_PATH
+_UPLOAD_TEMP_ROOT = getenv("UPLOAD_TEMP_ROOT", UPLOAD_TEMP_ROOT, str2path)
+_UPLOAD_DATABASE_PATH = getenv(
+    "UPLOAD_DATABASE_PATH", UPLOAD_DATABASE_PATH, str2path
 )
-_DEFAULT_CHUNK_SIZE = read_environment_int(
-    "DEFAULT_CHUNK_SIZE", DEFAULT_CHUNK_SIZE
+_DEFAULT_CHUNK_SIZE = getenv(
+    "DEFAULT_CHUNK_SIZE",
+    DEFAULT_CHUNK_SIZE,
+    int
 )
-_MIN_CHUNK_SIZE = read_environment_int("MIN_CHUNK_SIZE", MIN_CHUNK_SIZE)
-_MAX_CHUNK_SIZE = read_environment_int("MAX_CHUNK_SIZE", MAX_CHUNK_SIZE)
-_MAX_CHUNKS = read_environment_int("MAX_CHUNKS", MAX_CHUNKS)
-_MAX_UPLOAD_SIZE = read_environment_int("MAX_UPLOAD_SIZE", MAX_UPLOAD_SIZE)
-_UPLOAD_SESSION_TTL_SECONDS = read_environment_int(
-    "UPLOAD_SESSION_TTL_SECONDS", UPLOAD_SESSION_TTL_SECONDS
+_MIN_CHUNK_SIZE = getenv("MIN_CHUNK_SIZE", MIN_CHUNK_SIZE, int)
+_MAX_CHUNK_SIZE = getenv("MAX_CHUNK_SIZE", MAX_CHUNK_SIZE, int)
+_MAX_CHUNKS = getenv("MAX_CHUNKS", MAX_CHUNKS, int)
+_MAX_UPLOAD_SIZE = getenv("MAX_UPLOAD_SIZE", MAX_UPLOAD_SIZE, int)
+_UPLOAD_SESSION_TTL_SECONDS = getenv(
+    "UPLOAD_SESSION_TTL_SECONDS",
+    UPLOAD_SESSION_TTL_SECONDS,
+    int
 )
-_MAX_CONCURRENT_UPLOAD_SESSIONS = read_environment_int(
-    "MAX_CONCURRENT_UPLOAD_SESSIONS", MAX_CONCURRENT_UPLOAD_SESSIONS
+_MAX_CONCURRENT_UPLOAD_SESSIONS = getenv(
+    "MAX_CONCURRENT_UPLOAD_SESSIONS",
+    MAX_CONCURRENT_UPLOAD_SESSIONS,
+    int
 )
-_UPLOAD_CLEANUP_INTERVAL_SECONDS = read_environment_int(
-    "UPLOAD_CLEANUP_INTERVAL_SECONDS", UPLOAD_CLEANUP_INTERVAL_SECONDS
+_UPLOAD_CLEANUP_INTERVAL_SECONDS = getenv(
+    "UPLOAD_CLEANUP_INTERVAL_SECONDS",
+    UPLOAD_CLEANUP_INTERVAL_SECONDS,
+    int
 )
-_DEFAULT_THEME = read_environment_string("DEFAULT_THEME", DEFAULT_THEME)
-_DEFAULT_ACCENT_COLOR = read_environment_string(
+_DEFAULT_THEME = getenv("DEFAULT_THEME", DEFAULT_THEME)
+_DEFAULT_ACCENT_COLOR = getenv(
     "DEFAULT_ACCENT_COLOR", DEFAULT_ACCENT_COLOR
 )
 
@@ -182,11 +184,6 @@ class Config:
     port: int = field(
         default=_PORT,
         metadata={"description": "HTTP 服务监听端口"},
-    )
-
-    api_prefix: str = field(
-        default=API_PREFIX,
-        metadata={"description": "业务 API 路由公共前缀"},
     )
 
     static_prefix: str = field(
