@@ -23,6 +23,7 @@ from ..dependencies.services import (
 )
 from ..services.archive_service import (
     ArchiveService,
+    DEFAULT_ARCHIVE_FILENAME,
     iter_archive_stream,
 )
 from ..errors.exceptions import (
@@ -305,7 +306,7 @@ def download_content(
     )
 
 
-ARCHIVE_DEFAULT_FILENAME: str = "archive.zip"
+ARCHIVE_DEFAULT_FILENAME: str = DEFAULT_ARCHIVE_FILENAME
 """压缩包默认下载文件名。"""
 
 
@@ -316,7 +317,8 @@ ARCHIVE_DEFAULT_FILENAME: str = "archive.zip"
     summary="压缩打包下载",
     description=(
         "将多个文件或目录打包为 ZIP 下载。目录会被递归展开；"
-        "ZIP 内的路径保留输入的目录结构，以避免同名冲突。"
+        "ZIP 内的路径以所有输入路径的最深公共目录为根，公共目录"
+        "名作为最外层目录，避免包含沙箱根目录到目标的整条路径。"
         "``paths`` 为逗号分隔的沙箱虚拟路径列表。"
     ),
 )
@@ -332,15 +334,15 @@ def download_zip(
 ) -> Response:
     """压缩打包下载。"""
     path_list = parse_comma_separated_paths(paths)
-    entries = archive_service.prepare_entries(
+    plan = archive_service.prepare_archive(
         path_list, follow_link=follow_link
     )
     return StreamingResponse(
-        iter_archive_stream(entries),
+        iter_archive_stream(plan.entries),
         media_type="application/zip",
         headers={
             "Content-Disposition": build_content_disposition(
-                ARCHIVE_DEFAULT_FILENAME
+                plan.filename
             ),
         },
     )

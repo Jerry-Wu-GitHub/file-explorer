@@ -109,6 +109,78 @@ def test_prepare_entries_directory_with_nested_deep(
     assert entries[0].archive_name == "a/b/c/file.txt"
 
 
+def test_prepare_archive_deep_file_uses_common_directory_as_root(
+    tmp_path: Path,
+) -> None:
+    """深层文件应以所在目录名作为 ZIP 最外层目录。"""
+    deep = tmp_path / "a" / "b" / "c"
+    deep.mkdir(parents=True)
+    (deep / "file.txt").write_text("x", encoding="utf-8")
+    service = build_service(tmp_path)
+
+    plan = service.prepare_archive(["/a/b/c/file.txt"])
+    assert plan.root_name == "c"
+    assert plan.filename == "c.zip"
+    assert [entry.archive_name for entry in plan.entries] == ["c/file.txt"]
+
+
+def test_prepare_archive_multiple_files_use_deepest_common_directory(
+    tmp_path: Path,
+) -> None:
+    """多个文件应以最深公共目录为根，并保留其下的相对结构。"""
+    deep = tmp_path / "a" / "b" / "c"
+    deep.mkdir(parents=True)
+    (deep / "file.txt").write_text("x", encoding="utf-8")
+    (tmp_path / "a" / "b" / "other.txt").write_text(
+        "y", encoding="utf-8"
+    )
+    service = build_service(tmp_path)
+
+    plan = service.prepare_archive(
+        ["/a/b/c/file.txt", "/a/b/other.txt"]
+    )
+    assert plan.root_name == "b"
+    assert plan.filename == "b.zip"
+    assert sorted(entry.archive_name for entry in plan.entries) == [
+        "b/c/file.txt",
+        "b/other.txt",
+    ]
+
+
+def test_prepare_archive_deep_directory_uses_directory_name_as_root(
+    tmp_path: Path,
+) -> None:
+    """深层目录应以该目录名作为 ZIP 最外层目录。"""
+    deep = tmp_path / "a" / "b" / "c"
+    deep.mkdir(parents=True)
+    (deep / "file.txt").write_text("x", encoding="utf-8")
+    service = build_service(tmp_path)
+
+    plan = service.prepare_archive(["/a/b/c"])
+    assert plan.root_name == "c"
+    assert plan.filename == "c.zip"
+    assert [entry.archive_name for entry in plan.entries] == ["c/file.txt"]
+
+
+def test_prepare_archive_root_common_directory_has_no_prefix(
+    tmp_path: Path,
+) -> None:
+    """公共目录为沙箱根目录时不额外添加外层目录。"""
+    (tmp_path / "a").mkdir()
+    (tmp_path / "a" / "x.txt").write_text("x", encoding="utf-8")
+    (tmp_path / "b").mkdir()
+    (tmp_path / "b" / "y.txt").write_text("y", encoding="utf-8")
+    service = build_service(tmp_path)
+
+    plan = service.prepare_archive(["/a/x.txt", "/b/y.txt"])
+    assert plan.root_name == ""
+    assert plan.filename == "archive.zip"
+    assert sorted(entry.archive_name for entry in plan.entries) == [
+        "a/x.txt",
+        "b/y.txt",
+    ]
+
+
 def test_prepare_entries_empty_directory(tmp_path: Path) -> None:
     """空目录返回空条目列表。"""
     (tmp_path / "empty").mkdir()
