@@ -13,6 +13,7 @@ import {
   putBinary,
   requestWithFallback,
 } from "./client.js";
+import { uploadBinaryWithProgress } from "./transfer.js";
 
 /** 分片上传接口的 API 路径。 */
 const UPLOADS_PATH = "/files/uploads";
@@ -48,9 +49,12 @@ export function getUploadStatus(uploadId) {
  * @param {string} uploadId 上传会话 ID。
  * @param {number} chunkNumber 分片编号，从 0 开始。
  * @param {Blob|ArrayBuffer} content 分片二进制内容。
- * @param {Object} [options] 可选请求头。
+ * @param {Object} [options] 可选请求头与进度选项。
  * @param {string} [options.contentMd5] `Content-MD5` 头值。
  * @param {string} [options.chunkSha256] `X-Chunk-SHA256` 头值。
+ * @param {(loaded: number, total: number) => void} [options.onProgress]
+ *     分片上传进度回调。
+ * @param {AbortSignal} [options.signal] 中止信号。
  * @returns {Promise<Object>} 分片上传结果。
  */
 export function uploadChunk(uploadId, chunkNumber, content, options = {}) {
@@ -61,11 +65,16 @@ export function uploadChunk(uploadId, chunkNumber, content, options = {}) {
   if (options.chunkSha256) {
     headers["X-Chunk-SHA256"] = options.chunkSha256;
   }
-  return putBinary(
-    `${UPLOADS_PATH}/${encodeURIComponent(uploadId)}/chunks/${chunkNumber}`,
-    content,
-    headers
-  );
+  const path = `${UPLOADS_PATH}/${encodeURIComponent(
+    uploadId
+  )}/chunks/${chunkNumber}`;
+  if (options.onProgress || options.signal) {
+    return uploadBinaryWithProgress(path, content, headers, {
+      onProgress: options.onProgress,
+      signal: options.signal,
+    });
+  }
+  return putBinary(path, content, headers);
 }
 
 /**

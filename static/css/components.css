@@ -228,6 +228,34 @@
   margin: 0 auto;
 }
 
+.modal-box--confirm {
+  width: min(440px, 90vw);
+}
+
+.confirm-message {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+}
+
+.modal-footer .tool-button.danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.modal-footer .tool-button.danger:hover:not(:disabled) {
+  background: var(--danger-bg);
+}
+
 /* Toast */
 .toast-container {
   position: fixed;

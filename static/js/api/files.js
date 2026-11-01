@@ -18,6 +18,7 @@ import {
   postJson,
   requestWithFallback,
 } from "./client.js";
+import { uploadFormDataWithProgress } from "./transfer.js";
 
 /** 文件接口的 API 路径。 */
 const FILES_PATH = "/files";
@@ -223,6 +224,9 @@ export function copyEntry(source, destination, options = {}) {
  * @param {Object} [options] 可选参数。
  * @param {string} [options.filename] 文件名；未提供时使用 `file.name`。
  * @param {boolean} [options.overwrite] 目标已存在时是否覆盖。
+ * @param {(loaded: number, total: number) => void} [options.onProgress]
+ *     上传进度回调。
+ * @param {AbortSignal} [options.signal] 中止信号。
  * @returns {Promise<Object>} 新文件的元数据。
  */
 export function uploadSmallFile(directoryPath, file, options = {}) {
@@ -230,6 +234,14 @@ export function uploadSmallFile(directoryPath, file, options = {}) {
   const formData = new FormData();
   formData.append("file", file, filename);
   formData.append("overwrite", String(options.overwrite ?? false));
+  if (options.onProgress || options.signal) {
+    return uploadFormDataWithProgress(
+      `${FILES_PATH}/upload`,
+      formData,
+      { path: directoryPath },
+      { onProgress: options.onProgress, signal: options.signal }
+    );
+  }
   return postFormData(`${FILES_PATH}/upload`, formData, {
     path: directoryPath,
   });

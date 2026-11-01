@@ -1,0 +1,201 @@
+/* 单个上传任务卡片：标题、统计、进度条、速度曲线与冲突处理。 */
+
+.upload-task {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  background: color-mix(in srgb, var(--bg-elevated) 70%, var(--bg-panel));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-large);
+}
+
+.upload-task__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.upload-task__title {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.upload-task__kind {
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.upload-task__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.upload-task__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.upload-action-icon {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+.upload-task__action[data-upload-action="terminate"]:hover:not(:disabled) {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.upload-task__status {
+  color: var(--fg-muted);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upload-task--conflict .upload-task__status,
+.upload-task--failed .upload-task__status {
+  color: var(--danger);
+}
+
+.upload-task--completed .upload-task__status {
+  color: var(--success);
+}
+
+.upload-task__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px 10px;
+}
+
+.upload-task__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.upload-task__stat-label {
+  color: var(--fg-muted);
+  font-size: 10px;
+}
+
+.upload-task__stat-value {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.upload-task__progress {
+  height: 7px;
+  background: color-mix(in srgb, var(--fg) 10%, transparent);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.upload-task__progress-bar {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--accent) 62%, var(--fg)),
+    var(--accent)
+  );
+  transition: width 0.25s linear;
+}
+
+.upload-task--completed .upload-task__progress-bar {
+  background: var(--success);
+}
+
+.upload-task__chart {
+  position: relative;
+  padding: 5px 7px 3px;
+  background: color-mix(in srgb, var(--fg) 4%, transparent);
+  border-radius: var(--radius);
+}
+
+.upload-task__chart-label {
+  color: var(--fg-muted);
+  font-size: 10px;
+  margin-bottom: 2px;
+}
+
+.upload-task__chart-svg {
+  display: block;
+  width: 100%;
+  height: 44px;
+}
+
+.upload-task__chart-area {
+  fill: var(--accent);
+  opacity: 0.18;
+}
+
+.upload-task__chart-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.upload-task__chart-empty {
+  position: absolute;
+  left: 10px;
+  bottom: 7px;
+  color: var(--fg-muted);
+  font-size: 10px;
+}
+
+.upload-task__conflict {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px;
+  background: var(--danger-bg);
+  border: 1px solid color-mix(in srgb, var(--danger) 38%, transparent);
+  border-radius: var(--radius);
+}
+
+.upload-task__conflict p {
+  margin: 0;
+  flex: 1;
+  min-width: 180px;
+  font-size: 12px;
+}
+
+.upload-task__conflict-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.upload-task__conflict .tool-button {
+  height: 24px;
+  padding: 0 9px;
+  font-size: 12px;
+}
+
+@media (max-width: 520px) {
+  .upload-task__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
